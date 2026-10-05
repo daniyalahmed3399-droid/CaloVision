@@ -5,6 +5,7 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
 import { useAuth } from "./AuthProvider";
 import FullPageLoader from "../ui/FullPageLoader";
+import AppShellSkeleton from "../app/AppShellSkeleton";
 
 // Only follow ?next= to a page inside this app, never to another site.
 function safeNextPath(value) {
@@ -47,7 +48,8 @@ export default function AuthGate({ mode, children }) {
   }, [redirectTo, router]);
 
   if (status === "loading" || redirectTo) {
-    return <FullPageLoader />;
+    // App pages show the shape of the shell; other pages a simple spinner.
+    return mode === "app" ? <AppShellSkeleton /> : <FullPageLoader />;
   }
 
   return children;
