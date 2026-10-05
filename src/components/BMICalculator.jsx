@@ -4,10 +4,12 @@ import { motion, AnimatePresence } from "motion/react";
 
 import { useAppDispatch, useAppSelector } from "../lib/store/hooks";
 import {
+  errorSet,
   fieldChanged,
   resultSet,
   unitChanged,
 } from "../lib/store/slices/bmiSlice";
+import { calculateBmi, validateBmiInput } from "../lib/bmi";
 import {
   fadeLeft,
   fadeRight,
@@ -29,6 +31,7 @@ export default function BMICalculator() {
     weightLbs,
     bmi,
     category,
+    error,
   } = useAppSelector((state) => state.bmi);
 
   const setField = (field) => (value) =>
@@ -49,61 +52,25 @@ export default function BMICalculator() {
 
   const calculateBMI = () => {
 
-    let calculatedBMI;
+    const input = {
+      unit,
+      heightCm,
+      weightKg,
+      heightFt,
+      heightIn,
+      weightLbs,
+    };
 
-    if (unit === "metric") {
+    // Reject blank, negative, zero and unrealistic values before they
+    // reach the formula (height 0 would otherwise show "Infinity").
+    const validationError = validateBmiInput(input);
 
-      if (!heightCm || !weightKg) return;
-
-      const heightMeters =
-        Number(heightCm) / 100;
-
-      calculatedBMI =
-        Number(weightKg) /
-        (heightMeters * heightMeters);
-
-    } else {
-
-      if (
-        !heightFt ||
-        !heightIn ||
-        !weightLbs
-      ) {
-        return;
-      }
-
-      const totalInches =
-        Number(heightFt) * 12 +
-        Number(heightIn);
-
-      calculatedBMI =
-        (Number(weightLbs) /
-          (totalInches * totalInches)) *
-        703;
+    if (validationError) {
+      dispatch(errorSet(validationError));
+      return;
     }
 
-
-    let nextCategory;
-
-    if (calculatedBMI < 18.5) {
-      nextCategory = "Underweight";
-
-    } else if (calculatedBMI < 25) {
-      nextCategory = "Normal weight";
-
-    } else if (calculatedBMI < 30) {
-      nextCategory = "Overweight";
-
-    } else {
-      nextCategory = "Obesity";
-    }
-
-    dispatch(
-      resultSet({
-        bmi: calculatedBMI.toFixed(1),
-        category: nextCategory,
-      })
-    );
+    dispatch(resultSet(calculateBmi(input)));
   };
 
 
@@ -436,6 +403,18 @@ export default function BMICalculator() {
               )}
 
             </AnimatePresence>
+
+
+            {/* Validation error */}
+
+            {error && (
+              <p
+                role="alert"
+                className="mt-4 text-sm font-medium text-red-600"
+              >
+                {error}
+              </p>
+            )}
 
 
             {/* Calculate button */}
