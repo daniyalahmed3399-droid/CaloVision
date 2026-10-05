@@ -1,9 +1,11 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import { motion } from "motion/react";
 import {
   Activity,
+  ArrowLeft,
   ArrowRight,
   Calculator,
   CheckCircle2,
@@ -348,69 +350,69 @@ export default function CaloriesCalculator() {
   };
 
   return (
-    <section className="relative overflow-hidden bg-[#f6f9f1] px-4 py-24 sm:px-6 lg:px-8 lg:py-32">
-      {/* Background decorations */}
-      <div className="pointer-events-none absolute -left-32 top-20 h-72 w-72 rounded-full bg-[#4dbb08]/10 blur-3xl" />
+    <div className="min-h-screen bg-[#f6f9f1] pb-20">
+      {/* HEADER */}
+      <section className="relative overflow-hidden bg-[#4dbb08] px-6 pb-16 pt-28 lg:px-8 lg:pb-20 lg:pt-32">
+        {/* Decorative circles */}
+        <div className="pointer-events-none absolute -right-24 -top-24 h-72 w-72 rounded-full border-[50px] border-white/10" />
 
-      <div className="pointer-events-none absolute -right-32 bottom-10 h-80 w-80 rounded-full bg-[#f5d547]/10 blur-3xl" />
+        <div className="pointer-events-none absolute -bottom-40 left-[10%] h-72 w-72 rounded-full border-[45px] border-white/10" />
 
-      <div className="relative z-10 mx-auto max-w-[1180px]">
-        
+        <div className="relative z-10 mx-auto max-w-[1200px]">
+          <Link
+            href="/"
+            className="mb-8 inline-flex items-center gap-2 text-sm font-medium text-white/80 transition-colors hover:text-white"
+          >
+            <ArrowLeft size={16} />
+            Back to CaloVision
+          </Link>
 
-        {/* Heading */}
-        <motion.div
-          initial={{ opacity: 0, y: 35 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7 }}
-          className="mx-auto mb-12 max-w-3xl text-center"
-        >
-          <div className="mb-5 flex items-center justify-center gap-3">
-            <span className="h-[2px] w-10 bg-[#4dbb08]" />
-
-            <span className="text-xs font-bold uppercase tracking-[0.18em] text-[#4dbb08] sm:text-sm">
+          <motion.div
+            initial={{ opacity: 0, y: 25 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.7 }}
+            className="max-w-3xl"
+          >
+            <div className="mb-4 flex items-center gap-2 text-sm font-semibold uppercase tracking-[0.15em] text-white/80">
+              <Calculator size={18} />
               Calories Calculator
-            </span>
+            </div>
 
-            <span className="h-[2px] w-10 bg-[#4dbb08]" />
-          </div>
+            <h1 className="text-4xl font-extrabold leading-[1.05] tracking-tight text-white sm:text-5xl lg:text-6xl">
+              Understand Your Daily
+              <span className="block text-[#f5d547]">
+                Calorie Requirements
+              </span>
+            </h1>
 
-          <h1 className="text-4xl font-extrabold leading-[1.08] tracking-[-0.035em] text-gray-900 sm:text-5xl lg:text-6xl">
-            Understand Your Daily
-            <span className="block text-[#4dbb08]">
-              Calorie Requirements
-            </span>
-          </h1>
+            <p className="mt-5 max-w-2xl text-sm leading-7 text-white/90 sm:text-base">
+              Estimate your daily calorie needs based on your body
+              measurements, activity level, and fitness goal.
+            </p>
+          </motion.div>
+        </div>
+      </section>
 
-          <p className="mx-auto mt-6 max-w-2xl text-sm leading-7 text-gray-600 sm:text-base">
-            Estimate your daily calorie needs based on your body
-            measurements, activity level, and fitness goal.
-          </p>
-        </motion.div>
-
-        {/* Calculator */}
+      {/* MAIN CALCULATOR */}
+      <section className="px-5 py-10 sm:px-6 lg:px-8 lg:py-14">
+        <div className="mx-auto max-w-[1200px]">
         <div className="grid gap-8 lg:grid-cols-[1.15fr_0.85fr]">
 
           {/* FORM */}
           <motion.div
-            initial={{ opacity: 0, x: -40 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 0.15 }}
-            className="rounded-[28px] bg-white p-6 shadow-[0_20px_60px_rgba(0,0,0,0.08)] sm:p-8 lg:p-10"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="rounded-[24px] border border-gray-100 bg-white p-6 shadow-sm sm:p-7"
           >
-            <div className="mb-8 flex items-center gap-4">
-              <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-[#eaf5df] text-[#4dbb08]">
-                <Calculator size={23} />
-              </div>
+            <div className="mb-6">
+              <p className="text-xs font-semibold uppercase tracking-[0.15em] text-[#4dbb08]">
+                Your Information
+              </p>
 
-              <div>
-                <h2 className="text-xl font-bold text-gray-900">
-                  Your Information
-                </h2>
-
-                <p className="mt-1 text-xs text-gray-500">
-                  Choose your preferred measurement system.
-                </p>
-              </div>
+              <h2 className="mt-1 text-2xl font-bold text-gray-900">
+                Enter Your Details
+              </h2>
             </div>
 
             {/* UNIT TOGGLE */}
@@ -726,10 +728,10 @@ export default function CaloriesCalculator() {
 
           {/* RESULTS */}
           <motion.div
-            initial={{ opacity: 0, x: 40 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 0.25 }}
-            className="relative overflow-hidden rounded-[28px] bg-[#17251a] p-6 text-white shadow-[0_20px_60px_rgba(0,0,0,0.12)] sm:p-8 lg:p-10"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6, delay: 0.1 }}
+            className="relative overflow-hidden rounded-[24px] bg-[#17251a] p-6 text-white shadow-sm sm:p-7 lg:sticky lg:top-28 lg:self-start"
           >
             <div className="absolute -right-20 -top-20 h-56 w-56 rounded-full border-[30px] border-white/5" />
 
@@ -849,8 +851,9 @@ export default function CaloriesCalculator() {
             </div>
           </motion.div>
         </div>
-      </div>
-    </section>
+        </div>
+      </section>
+    </div>
   );
 }
 
