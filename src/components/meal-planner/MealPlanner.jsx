@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import Link from "next/link";
 import { motion } from "motion/react";
 import {
@@ -15,324 +15,95 @@ import MealSection from "./MealSection";
 
 import {
   MEAL_TYPES,
-  createFoodItem,
-  createInitialPlanner,
   calculateDailyNutrition,
   validateFoodItem,
-  calculateMealNutrition,
-  loadPlannerFromStorage,
   savePlannerToStorage,
-  moveFoodItem,
-  reorderFoodItem,
 } from "./mealPlannerUtils";
 
-const STORAGE_KEY =
-  "calovision-meal-planner";
+import {
+  useAppDispatch,
+  useAppSelector,
+} from "../../lib/store/hooks";
+import {
+  calorieTargetChanged,
+  foodAdded,
+  foodChanged,
+  foodMoved,
+  foodRemoved,
+  foodReordered,
+  plannerReset,
+  saveMessageSet,
+  validateCalorieTarget,
+  validationFailed,
+} from "../../lib/store/slices/mealPlannerSlice";
+import { PLANNER_STORAGE_KEY } from "../../lib/store/persistence";
 
 export default function MealPlanner() {
-  const [planner, setPlanner] = useState(
-    createInitialPlanner
+  // The planner, its validation errors and the save message live in the
+  // mealPlanner slice. Edits are auto-saved to localStorage by the
+  // persistence listener, so this component only dispatches actions.
+  const dispatch = useAppDispatch();
+
+  const { planner, errors, saveMessage } = useAppSelector(
+    (state) => state.mealPlanner
   );
-
-  const [loaded, setLoaded] = useState(false);
-
-  const [errors, setErrors] = useState({
-    calorieTarget: "",
-    meals: {},
-  });
-
-  const [saveMessage, setSaveMessage] =
-    useState("");
-
-  // ----------------------------------------------------------
-  // Load saved planner from localStorage
-  // ----------------------------------------------------------
-
-  useEffect(() => {
-    const savedPlanner =
-      loadPlannerFromStorage(
-        STORAGE_KEY
-      );
-
-    setPlanner(savedPlanner);
-    setLoaded(true);
-  }, []);
-
-  // ----------------------------------------------------------
-  // Save planner whenever it changes
-  //
-  // We only start saving after the initial localStorage
-  // load has completed. This prevents the default empty
-  // state from overwriting saved data.
-  // ----------------------------------------------------------
-
-  useEffect(() => {
-    if (!loaded) {
-      return;
-    }
-
-    savePlannerToStorage(
-      STORAGE_KEY,
-      planner
-    );
-
-    setSaveMessage(
-      "Changes saved automatically"
-    );
-
-    const timeout = setTimeout(() => {
-      setSaveMessage("");
-    }, 1800);
-
-    return () => clearTimeout(timeout);
-  }, [planner, loaded]);
 
   // ----------------------------------------------------------
   // Calculate daily nutrition
   // ----------------------------------------------------------
 
   const dailyNutrition = useMemo(() => {
-    return calculateDailyNutrition(
-      planner.meals
-    );
+    return calculateDailyNutrition(planner.meals);
   }, [planner.meals]);
 
   // ----------------------------------------------------------
-  // Add a food item
+  // Food item actions
   // ----------------------------------------------------------
 
-  const handleAddFood = (
-    mealId,
-    foodItem
-  ) => {
-    setPlanner((currentPlanner) => ({
-      ...currentPlanner,
-
-      meals: {
-        ...currentPlanner.meals,
-
-        [mealId]: [
-          ...currentPlanner.meals[mealId],
-          foodItem,
-        ],
-      },
-    }));
+  const handleAddFood = (mealId, foodItem) => {
+    dispatch(foodAdded({ mealId, foodItem }));
   };
 
-  // ----------------------------------------------------------
-  // Change a food item
-  // ----------------------------------------------------------
-
-  const handleChangeFood = (
-    mealId,
-    itemId,
-    changes
-  ) => {
-    setPlanner((currentPlanner) => {
-      const currentItems =
-        currentPlanner.meals[mealId];
-
-      const updatedItems =
-        currentItems.map((item) => {
-          if (item.id !== itemId) {
-            return item;
-          }
-
-          const updatedItem = {
-            ...item,
-            ...changes,
-          };
-
-          return updatedItem;
-        });
-
-      return {
-        ...currentPlanner,
-
-        meals: {
-          ...currentPlanner.meals,
-
-          [mealId]:
-            updatedItems,
-        },
-      };
-    });
-
-    clearFoodError(
-      mealId,
-      itemId
-    );
+  const handleChangeFood = (mealId, itemId, changes) => {
+    dispatch(foodChanged({ mealId, itemId, changes }));
   };
 
-  // ----------------------------------------------------------
-  // Remove a food item
-  // ----------------------------------------------------------
-
-  const handleRemoveFood = (
-    mealId,
-    itemId
-  ) => {
-    setPlanner((currentPlanner) => ({
-      ...currentPlanner,
-
-      meals: {
-        ...currentPlanner.meals,
-
-        [mealId]:
-          currentPlanner.meals[
-            mealId
-          ].filter(
-            (item) =>
-              item.id !== itemId
-          ),
-      },
-    }));
-
-    setErrors((currentErrors) => {
-      const mealErrors = {
-        ...(currentErrors.meals?.[
-          mealId
-        ] || {}),
-      };
-
-      delete mealErrors[itemId];
-
-      return {
-        ...currentErrors,
-
-        meals: {
-          ...currentErrors.meals,
-
-          [mealId]:
-            mealErrors,
-        },
-      };
-    });
+  const handleRemoveFood = (mealId, itemId) => {
+    dispatch(foodRemoved({ mealId, itemId }));
   };
 
-  // ----------------------------------------------------------
-  // Move food to another meal
-  // ----------------------------------------------------------
-
-  const handleMoveFood = (
-    fromMeal,
-    toMeal,
-    itemId
-  ) => {
-    if (fromMeal === toMeal) {
-      return;
-    }
-
-    setPlanner((currentPlanner) => ({
-      ...currentPlanner,
-
-      meals: moveFoodItem(
-        currentPlanner.meals,
-        fromMeal,
-        toMeal,
-        itemId
-      ),
-    }));
-
-    moveFoodError(
-      fromMeal,
-      toMeal,
-      itemId
-    );
+  const handleMoveFood = (fromMeal, toMeal, itemId) => {
+    dispatch(foodMoved({ fromMeal, toMeal, itemId }));
   };
 
-  // ----------------------------------------------------------
-  // Move food up
-  // ----------------------------------------------------------
-
-  const handleMoveFoodUp = (
-    mealId,
-    index
-  ) => {
+  const handleMoveFoodUp = (mealId, index) => {
     if (index <= 0) {
       return;
     }
 
-    setPlanner((currentPlanner) => ({
-      ...currentPlanner,
-
-      meals: reorderFoodItem(
-        currentPlanner.meals,
-        mealId,
-        index,
-        index - 1
-      ),
-    }));
+    dispatch(
+      foodReordered({ mealId, from: index, to: index - 1 })
+    );
   };
 
-  // ----------------------------------------------------------
-  // Move food down
-  // ----------------------------------------------------------
+  const handleMoveFoodDown = (mealId, index) => {
+    const items = planner.meals[mealId];
 
-  const handleMoveFoodDown = (
-    mealId,
-    index
-  ) => {
-    const items =
-      planner.meals[mealId];
-
-    if (
-      !items ||
-      index >= items.length - 1
-    ) {
+    if (!items || index >= items.length - 1) {
       return;
     }
 
-    setPlanner((currentPlanner) => ({
-      ...currentPlanner,
-
-      meals: reorderFoodItem(
-        currentPlanner.meals,
-        mealId,
-        index,
-        index + 1
-      ),
-    }));
+    dispatch(
+      foodReordered({ mealId, from: index, to: index + 1 })
+    );
   };
 
   // ----------------------------------------------------------
   // Change calorie target
   // ----------------------------------------------------------
 
-  const handleCalorieTargetChange = (
-    value
-  ) => {
-    setPlanner((currentPlanner) => ({
-      ...currentPlanner,
-
-      calorieTarget: value,
-    }));
-
-    const numericValue =
-      Number(value);
-
-    let message = "";
-
-    if (value === "") {
-      message =
-        "Enter a calorie target.";
-    } else if (
-      !Number.isFinite(numericValue)
-    ) {
-      message =
-        "Enter a valid calorie target.";
-    } else if (numericValue <= 0) {
-      message =
-        "Calorie target must be greater than zero.";
-    } else if (numericValue > 10000) {
-      message =
-        "Calorie target cannot exceed 10,000 kcal.";
-    }
-
-    setErrors((currentErrors) => ({
-      ...currentErrors,
-      calorieTarget: message,
-    }));
+  const handleCalorieTargetChange = (value) => {
+    dispatch(calorieTargetChanged(value));
   };
 
   // ----------------------------------------------------------
@@ -340,226 +111,67 @@ export default function MealPlanner() {
   // ----------------------------------------------------------
 
   const handleReset = () => {
-    const confirmed =
-      window.confirm(
-        "Are you sure you want to clear today's entire meal plan?"
-      );
+    const confirmed = window.confirm(
+      "Are you sure you want to clear today's entire meal plan?"
+    );
 
     if (!confirmed) {
       return;
     }
 
-    const emptyPlanner =
-      createInitialPlanner();
-
-    setPlanner(emptyPlanner);
-
-    setErrors({
-      calorieTarget: "",
-      meals: {},
-    });
-
-    setSaveMessage(
-      "Meal plan cleared"
-    );
+    dispatch(plannerReset());
   };
-
-  // ----------------------------------------------------------
-  // Validate all food items
-  // ----------------------------------------------------------
-
-  const validateAllFoodItems =
-    () => {
-      const mealErrors = {};
-
-      MEAL_TYPES.forEach((meal) => {
-        const items =
-          planner.meals[
-            meal.id
-          ] || [];
-
-        mealErrors[meal.id] = {};
-
-        items.forEach((item) => {
-          const itemErrors =
-            validateFoodItem(item);
-
-          if (
-            Object.keys(
-              itemErrors
-            ).length > 0
-          ) {
-            mealErrors[
-              meal.id
-            ][item.id] =
-              itemErrors;
-          }
-        });
-      });
-
-      return mealErrors;
-    };
 
   // ----------------------------------------------------------
   // Manual save / validation
   // ----------------------------------------------------------
 
   const handleSavePlan = () => {
-    const mealErrors =
-      validateAllFoodItems();
+    const mealErrors = {};
 
-    const target =
-      Number(
-        planner.calorieTarget
-      );
+    MEAL_TYPES.forEach((meal) => {
+      mealErrors[meal.id] = {};
 
-    let calorieError = "";
+      (planner.meals[meal.id] || []).forEach((item) => {
+        const itemErrors = validateFoodItem(item);
 
-    if (
-      planner.calorieTarget === "" ||
-      planner.calorieTarget === null ||
-      planner.calorieTarget === undefined
-    ) {
-      calorieError =
-        "Enter a calorie target.";
-    } else if (
-      !Number.isFinite(target)
-    ) {
-      calorieError =
-        "Enter a valid calorie target.";
-    } else if (target <= 0) {
-      calorieError =
-        "Calorie target must be greater than zero.";
-    } else if (target > 10000) {
-      calorieError =
-        "Calorie target cannot exceed 10,000 kcal.";
-    }
-
-    const hasFoodErrors =
-      Object.values(
-        mealErrors
-      ).some(
-        (mealError) =>
-          Object.keys(
-            mealError
-          ).length > 0
-      );
-
-    if (
-      calorieError ||
-      hasFoodErrors
-    ) {
-      setErrors({
-        calorieTarget:
-          calorieError,
-        meals: mealErrors,
+        if (Object.keys(itemErrors).length > 0) {
+          mealErrors[meal.id][item.id] = itemErrors;
+        }
       });
+    });
 
-      setSaveMessage(
-        "Please fix the highlighted fields"
+    const calorieError = validateCalorieTarget(
+      planner.calorieTarget
+    );
+
+    const hasFoodErrors = Object.values(mealErrors).some(
+      (mealError) => Object.keys(mealError).length > 0
+    );
+
+    if (calorieError || hasFoodErrors) {
+      dispatch(
+        validationFailed({
+          calorieTarget: calorieError,
+          meals: mealErrors,
+        })
       );
 
       return;
     }
 
-    const saved =
-      savePlannerToStorage(
-        STORAGE_KEY,
-        planner
-      );
+    const saved = savePlannerToStorage(
+      PLANNER_STORAGE_KEY,
+      planner
+    );
 
-    if (saved) {
-      setSaveMessage(
-        "Meal plan saved successfully"
-      );
-    } else {
-      setSaveMessage(
-        "Unable to save the meal plan"
-      );
-    }
-  };
-
-  // ----------------------------------------------------------
-  // Clear one food validation error
-  // ----------------------------------------------------------
-
-  const clearFoodError = (
-    mealId,
-    itemId
-  ) => {
-    setErrors((currentErrors) => {
-      const mealErrors = {
-        ...(currentErrors.meals?.[
-          mealId
-        ] || {}),
-      };
-
-      if (!mealErrors[itemId]) {
-        return currentErrors;
-      }
-
-      delete mealErrors[itemId];
-
-      return {
-        ...currentErrors,
-
-        meals: {
-          ...currentErrors.meals,
-
-          [mealId]:
-            mealErrors,
-        },
-      };
-    });
-  };
-
-  // ----------------------------------------------------------
-  // Move validation errors together with a food item
-  // ----------------------------------------------------------
-
-  const moveFoodError = (
-    fromMeal,
-    toMeal,
-    itemId
-  ) => {
-    setErrors((currentErrors) => {
-      const sourceErrors = {
-        ...(currentErrors.meals?.[
-          fromMeal
-        ] || {}),
-      };
-
-      const targetErrors = {
-        ...(currentErrors.meals?.[
-          toMeal
-        ] || {}),
-      };
-
-      if (
-        sourceErrors[itemId]
-      ) {
-        targetErrors[itemId] =
-          sourceErrors[itemId];
-
-        delete sourceErrors[
-          itemId
-        ];
-      }
-
-      return {
-        ...currentErrors,
-
-        meals: {
-          ...currentErrors.meals,
-
-          [fromMeal]:
-            sourceErrors,
-
-          [toMeal]:
-            targetErrors,
-        },
-      };
-    });
+    dispatch(
+      saveMessageSet(
+        saved
+          ? "Meal plan saved successfully"
+          : "Unable to save the meal plan"
+      )
+    );
   };
 
   return (

@@ -66,7 +66,7 @@ export default function MainHero() {
         }}
         className="absolute bottom-24 left-3 z-30 hidden rounded-full bg-white px-3 py-5 text-[10px] font-semibold uppercase tracking-wider text-gray-800 [writing-mode:vertical-rl] lg:block"
       >
-        Let's Talk
+        Let&apos;s Talk
       </motion.a>
 
 

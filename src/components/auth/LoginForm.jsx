@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { Mail, Lock } from "lucide-react";
 
-import { useAuth } from "./AuthProvider";
+import { useAuth } from "../../lib/store/useAuth";
 import AuthHeading from "./AuthHeading";
 import Button from "../ui/Button";
 import FormAlert from "../ui/FormAlert";
@@ -43,7 +43,7 @@ export default function LoginForm() {
     setFormError("");
 
     try {
-      // On success AuthProvider updates the session and AuthGate redirects
+      // On success the auth slice stores the session and AuthGate redirects
       // to the dashboard, onboarding, or the page the user came from.
       await login({ email: form.email.trim(), password: form.password });
     } catch (error) {

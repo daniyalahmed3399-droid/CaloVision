@@ -1,8 +1,17 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import Link from "next/link";
 import { motion } from "motion/react";
+
+import { useAppDispatch, useAppSelector } from "../lib/store/hooks";
+import {
+  calculatorReset,
+  errorSet,
+  fieldChanged,
+  resultSet,
+  unitChanged,
+} from "../lib/store/slices/calorieCalculatorSlice";
 import {
   Activity,
   ArrowLeft,
@@ -70,28 +79,16 @@ const goals = [
   },
 ];
 
-const initialForm = {
-  age: "",
-  gender: "",
-
-  // Metric
-  heightCm: "",
-  weightKg: "",
-
-  // Imperial
-  heightFeet: "",
-  heightInches: "",
-  weightLb: "",
-
-  activity: "",
-  goal: "",
-};
-
 export default function CaloriesCalculator() {
-  const [unit, setUnit] = useState("metric");
-  const [form, setForm] = useState(initialForm);
-  const [result, setResult] = useState(null);
-  const [error, setError] = useState("");
+  // Unit, form values, result and error live in the calorieCalculator
+  // slice, so entered values survive navigating away and back.
+  const dispatch = useAppDispatch();
+  const { unit, form, result, error } = useAppSelector(
+    (state) => state.calorieCalculator
+  );
+
+  const setError = (message) => dispatch(errorSet(message));
+  const setResult = (value) => dispatch(resultSet(value));
 
   const selectedActivity = useMemo(
     () => activityLevels.find((item) => item.value === form.activity),
@@ -106,18 +103,11 @@ export default function CaloriesCalculator() {
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    setForm((previous) => ({
-      ...previous,
-      [name]: value,
-    }));
-
-    setError("");
+    dispatch(fieldChanged({ name, value }));
   };
 
   const handleUnitChange = (newUnit) => {
-    setUnit(newUnit);
-    setResult(null);
-    setError("");
+    dispatch(unitChanged(newUnit));
   };
 
   const calculateCalories = (e) => {
@@ -344,9 +334,7 @@ export default function CaloriesCalculator() {
   };
 
   const resetCalculator = () => {
-    setForm(initialForm);
-    setResult(null);
-    setError("");
+    dispatch(calculatorReset());
   };
 
   return (

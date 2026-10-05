@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -14,7 +14,12 @@ import {
 } from "lucide-react";
 import { motion } from "motion/react";
 
-import { useAuth } from "../auth/AuthProvider";
+import { useAuth } from "../../lib/store/useAuth";
+import { useAppDispatch, useAppSelector } from "../../lib/store/hooks";
+import {
+  profileMenuSet,
+  profileMenuToggled,
+} from "../../lib/store/slices/uiSlice";
 
 const PAGE_TITLES = [
   ["/app/food", "Food"],
@@ -29,7 +34,9 @@ export default function TopBar({ onMenuClick }) {
   const pathname = usePathname();
   const { user, logout } = useAuth();
 
-  const [menuOpen, setMenuOpen] = useState(false);
+  const dispatch = useAppDispatch();
+  const menuOpen = useAppSelector((state) => state.ui.profileMenuOpen);
+  const setMenuOpen = (open) => dispatch(profileMenuSet(open));
   const menuRef = useRef(null);
 
   const title =
@@ -42,11 +49,13 @@ export default function TopBar({ onMenuClick }) {
   useEffect(() => {
     if (!menuOpen) return;
 
+    const close = () => dispatch(profileMenuSet(false));
+
     const onClick = (event) => {
-      if (!menuRef.current?.contains(event.target)) setMenuOpen(false);
+      if (!menuRef.current?.contains(event.target)) close();
     };
     const onKey = (event) => {
-      if (event.key === "Escape") setMenuOpen(false);
+      if (event.key === "Escape") close();
     };
 
     document.addEventListener("mousedown", onClick);
@@ -56,7 +65,7 @@ export default function TopBar({ onMenuClick }) {
       document.removeEventListener("mousedown", onClick);
       document.removeEventListener("keydown", onKey);
     };
-  }, [menuOpen]);
+  }, [menuOpen, dispatch]);
 
   const today = new Intl.DateTimeFormat("en", {
     weekday: "long",
@@ -123,7 +132,7 @@ export default function TopBar({ onMenuClick }) {
           <div ref={menuRef} className="relative">
             <button
               type="button"
-              onClick={() => setMenuOpen((open) => !open)}
+              onClick={() => dispatch(profileMenuToggled())}
               aria-label="Account menu"
               aria-haspopup="menu"
               aria-expanded={menuOpen}

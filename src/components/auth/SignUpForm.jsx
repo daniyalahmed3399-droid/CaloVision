@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { Mail, Lock } from "lucide-react";
 
-import { useAuth } from "./AuthProvider";
+import { useAuth } from "../../lib/store/useAuth";
 import AuthHeading from "./AuthHeading";
 import Button from "../ui/Button";
 import FormAlert from "../ui/FormAlert";

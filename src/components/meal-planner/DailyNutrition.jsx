@@ -95,7 +95,7 @@ export default function DailyNutrition({
           </div>
 
           <h2 className="mt-3 text-2xl font-extrabold tracking-tight sm:text-3xl">
-            Today's Nutrition
+            Today&apos;s Nutrition
           </h2>
 
           <p className="mt-2 max-w-xl text-xs leading-6 text-white/55 sm:text-sm">

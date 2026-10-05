@@ -11,7 +11,7 @@ npm run lint    # ESLint (eslint-config-next core-web-vitals)
 npx eslint <paths>   # lint specific files
 ```
 
-There is no test runner configured. `npm run lint` currently reports pre-existing `react-hooks/set-state-in-effect` errors in `meal-planner/` and `recipe/`; lint only the files you touch.
+There is no test runner configured. `npm run lint` is clean (0 errors; two `<img>` warnings).
 
 ## Stack notes
 
@@ -25,14 +25,27 @@ There is no test runner configured. `npm run lint` currently reports pre-existin
 
 Two distinct halves share one app:
 
-1. **Public marketing site + calculators** — `src/app/page.js` composes the landing sections in `src/components/*.jsx`. `/calorie-calculator`, `/recipe-nutrition` and `/meal-planner` are standalone tools (logic in `CaloriesCalculator.jsx`, `recipe/recipeUtils.js`, `meal-planner/mealPlannerUtils.js`; recipes and planner persist to `localStorage`). These three share one page design: green header band with a "Back to CaloVision" link, then `rounded-[24px]` cards. Match it for new tool pages.
+1. **Public marketing site + calculators** — `src/app/page.js` composes the landing sections in `src/components/*.jsx`. `/calorie-calculator`, `/recipe-nutrition` and `/meal-planner` are standalone tools (pure logic in `CaloriesCalculator.jsx`, `recipe/recipeUtils.js`, `meal-planner/mealPlannerUtils.js`; their state is in the Redux slices, and recipes/planner persist to `localStorage` via `persistence.js`). These three share one page design: green header band with a "Back to CaloVision" link, then `rounded-[24px]` cards. Match it for new tool pages.
 2. **Authenticated web app** (implementing `~/Desktop/CaloVision_Guide.pdf`, a frontend build guide) — routes under `/app/*`, plus `/login`, `/signup`, `/forgot-password`, `/reset-password`, `/onboarding`.
+
+### State management (Redux Toolkit) — the standard for all new features
+
+All shared, persisted or business state lives in a Redux Toolkit store in `src/lib/store/`; use it for new features instead of Context or ad-hoc `useState`/`localStorage`.
+
+- `store.js` exports `makeStore()`; `StoreProvider.jsx` (root layout) creates one per render tree via `useState` — never a module-level singleton (it would leak state between users on the server). On mount it dispatches `hydratePersisted()` and `restoreSession()`, so browser-only reads happen after hydration.
+- **Slices** (`slices/`): `auth`, `ui` (drawers, menus, pricing toggle), `onboarding`, `calorieCalculator`, `bmi`, `mealPlanner`, `recipe`. Add a feature by creating a slice and registering its reducer in `store.js`. Components read with `useAppSelector`/`useAppDispatch` from `hooks.js`.
+- **Server data**: use RTK Query via `api.js` (`api.injectEndpoints`). Its base query reuses `lib/api/client.js`, so each endpoint's `query` is `{ name, body }` where `name` is a key in `lib/api/endpoints.js`. Use `tagTypes`/`invalidatesTags` so screens refresh after a mutation (e.g. logging a meal refreshes the dashboard). Don't write fetch thunks for backend data.
+- **Persistence** is centralised in `persistence.js` (a listener middleware): meal planner auto-save, saved recipes, and the self-clearing save messages. Storage keys are unchanged (`calovision-meal-planner`, `calovision_saved_recipes`). Slices stay pure.
+- **Derive, don't store**: computed values use memoized selectors (e.g. `selectRecipeNutrition`).
+- **Logout resets** per-user slices (`onboarding`, account-only `ui` flags) through `extraReducers` on `logout.fulfilled`. Any new slice holding user-specific data must do the same.
+- **Deliberately NOT in Redux**: password/credential fields (login, signup, reset forms) stay local state so they never appear in devtools or serialized state; also pure hover/animation state and `isHovered`-style micro-state.
+- State must be serializable: failed thunks `rejectWithValue` a plain `{status, message, fieldErrors}`; `useAuth()` rethrows it as an `ApiError` so forms can show field errors.
 
 ### Auth, session and route protection (spans several files)
 
-- `src/components/auth/AuthProvider.jsx` (mounted in the root layout) owns `user` and `status` (`loading | authenticated | unauthenticated`) and restores the session from a token in localStorage on load. `useAuth()` exposes `login`, `signUp`, `logout`, `saveOnboarding`, `applyUser`.
+- The `auth` slice (`slices/authSlice.js`) owns `user` and `status` (`loading | authenticated | unauthenticated`) with thunks `restoreSession`, `login`, `signUp`, `logout`, `saveOnboarding`. Components use the `useAuth()` facade (`lib/store/useAuth.js`), which exposes `login`, `signUp`, `logout`, `saveOnboarding`, `applyUser` as plain async functions.
 - Protection is two layers: `src/proxy.js` redirects logged-out visitors using a marker cookie (`cv_session`) before render; `AuthGate` (client) then verifies the session and routes by `mode`: `guest` (login/signup pages), `onboarding`, `app`. Un-onboarded users are forced to `/onboarding`; onboarded users are bounced out of it. `?next=` is honored only for same-site paths.
-- `saveOnboarding` deliberately returns the updated user **without** putting it in context; the review step shows the backend targets and only `applyUser` (on "Continue") flips `onboarded`, which is what triggers the redirect to the dashboard.
+- `saveOnboarding` deliberately returns the updated user **without** putting it in `auth.user`; the `onboarding` slice keeps it as `reviewUser`, and only `applyUser` (on "Continue") flips `onboarded`, which is what triggers the redirect to the dashboard.
 - `src/lib/session.js` is the only place that touches the token/cookie. Moving to a real httpOnly backend cookie means changing it and `proxy.js` together.
 
 ### API layer and the mock backend

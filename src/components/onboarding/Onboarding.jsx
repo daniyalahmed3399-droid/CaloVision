@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
 import Link from "next/link";
 import { AnimatePresence, motion } from "motion/react";
 import {
@@ -13,7 +13,16 @@ import {
   User,
 } from "lucide-react";
 
-import { useAuth } from "../auth/AuthProvider";
+import { useAuth } from "../../lib/store/useAuth";
+import { useAppDispatch, useAppSelector } from "../../lib/store/hooks";
+import {
+  dietToggled,
+  errorsSet,
+  fieldChanged,
+  stepMoved,
+  stepSet,
+  unitsChanged,
+} from "../../lib/store/slices/onboardingSlice";
 import Button from "../ui/Button";
 import FormAlert from "../ui/FormAlert";
 import TextField from "../ui/TextField";
@@ -30,35 +39,17 @@ import {
   validateBody,
   validateGoal,
 } from "./validate";
-import { toUserMessage } from "../../lib/api/errors";
 import { FEATURES } from "../../lib/config";
-
-const initialForm = {
-  name: "",
-  age: "",
-  gender: "",
-  units: "metric",
-  heightCm: "",
-  weightKg: "",
-  heightFeet: "",
-  heightInches: "",
-  weightLb: "",
-  goal: "",
-  targetWeight: "",
-  targetWeightLb: "",
-  activity: "",
-  dietPreferences: [],
-};
 
 export default function Onboarding() {
   const { user, saveOnboarding, applyUser, logout } = useAuth();
 
-  const [form, setForm] = useState(initialForm);
-  const [errors, setErrors] = useState({});
-  const [stepIndex, setStepIndex] = useState(0);
-  const [saving, setSaving] = useState(false);
-  const [saveError, setSaveError] = useState("");
-  const [reviewUser, setReviewUser] = useState(null);
+  // All wizard state lives in the onboarding slice, so progress survives
+  // navigating away and back. Saving/error flags come from the
+  // saveOnboarding thunk.
+  const dispatch = useAppDispatch();
+  const { form, errors, stepIndex, saving, saveError, reviewUser } =
+    useAppSelector((state) => state.onboarding);
 
   // Steps after the welcome screen are counted ("Step 1 of 4"). Diet
   // preferences are only shown when the backend stores them.
@@ -78,37 +69,15 @@ export default function Onboarding() {
   const countedSteps = steps.length - 1;
   const lastInputStep = steps[steps.length - 2];
 
-  const update = (field, value) => {
-    setForm((current) => ({ ...current, [field]: value }));
-    setErrors({});
-    setSaveError("");
-  };
+  const update = (name, value) =>
+    dispatch(fieldChanged({ field: name, value }));
 
   const field = (name) => ({
     value: form[name],
     onChange: (event) => update(name, event.target.value),
   });
 
-  const goBack = () => {
-    setErrors({});
-    setSaveError("");
-    setStepIndex((index) => Math.max(0, index - 1));
-  };
-
-  const finishInputs = async () => {
-    setSaving(true);
-    setSaveError("");
-
-    try {
-      const updatedUser = await saveOnboarding(buildProfile(form));
-      setReviewUser(updatedUser);
-      setStepIndex(steps.indexOf("review"));
-    } catch (error) {
-      setSaveError(toUserMessage(error));
-    } finally {
-      setSaving(false);
-    }
-  };
+  const goBack = () => dispatch(stepMoved(-1));
 
   const goNext = () => {
     const validators = {
@@ -118,30 +87,22 @@ export default function Onboarding() {
     };
 
     const nextErrors = validators[step]?.(form) || {};
-    setErrors(nextErrors);
+    dispatch(errorsSet(nextErrors));
 
     if (Object.keys(nextErrors).length > 0) return;
 
     if (step === lastInputStep) {
-      finishInputs();
+      // On success the slice stores the returned user and moves to the
+      // review step; on failure it stores the error message.
+      saveOnboarding(buildProfile(form)).catch(() => {});
     } else {
-      setStepIndex((index) => index + 1);
+      dispatch(stepMoved(1));
     }
   };
 
-  const toggleDiet = (value) => {
-    update(
-      "dietPreferences",
-      form.dietPreferences.includes(value)
-        ? form.dietPreferences.filter((item) => item !== value)
-        : [...form.dietPreferences, value]
-    );
-  };
+  const toggleDiet = (value) => dispatch(dietToggled(value));
 
-  const setUnits = (units) => {
-    setForm((current) => ({ ...current, units }));
-    setErrors({});
-  };
+  const setUnits = (units) => dispatch(unitsChanged(units));
 
   const progress = step === "welcome" ? 0 : (stepIndex / countedSteps) * 100;
 
@@ -226,7 +187,7 @@ export default function Onboarding() {
                 <Button
                   variant="green"
                   className="mx-auto mt-8 w-full max-w-xs"
-                  onClick={() => setStepIndex(1)}
+                  onClick={() => dispatch(stepSet(1))}
                 >
                   Let&apos;s get started
                   <ArrowRight size={18} />

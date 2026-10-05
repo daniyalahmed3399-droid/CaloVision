@@ -1,6 +1,5 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "motion/react";
 import {
@@ -10,10 +9,14 @@ import {
   ArrowRight,
 } from "lucide-react";
 
-import { useAuth } from "./auth/AuthProvider";
+import { useAuth } from "../lib/store/useAuth";
+import { useAppDispatch, useAppSelector } from "../lib/store/hooks";
+import { publicNavSet } from "../lib/store/slices/uiSlice";
 
 export default function Navbar() {
-  const [mobileOpen, setMobileOpen] = useState(false);
+  const dispatch = useAppDispatch();
+  const mobileOpen = useAppSelector((state) => state.ui.publicNavOpen);
+  const setMobileOpen = (open) => dispatch(publicNavSet(open));
   const { status } = useAuth();
   const loggedIn = status === "authenticated";
 

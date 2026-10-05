@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-import { useAuth } from "./AuthProvider";
+import { useAuth } from "../../lib/store/useAuth";
 import FullPageLoader from "../ui/FullPageLoader";
 import AppShellSkeleton from "../app/AppShellSkeleton";
 

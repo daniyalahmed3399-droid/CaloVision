@@ -1,8 +1,13 @@
 "use client";
 
-import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 
+import { useAppDispatch, useAppSelector } from "../lib/store/hooks";
+import {
+  fieldChanged,
+  resultSet,
+  unitChanged,
+} from "../lib/store/slices/bmiSlice";
 import {
   fadeLeft,
   fadeRight,
@@ -12,17 +17,28 @@ import {
 
 export default function BMICalculator() {
 
-  const [unit, setUnit] = useState("metric");
+  // Form values and the result live in the bmi slice.
+  const dispatch = useAppDispatch();
 
-  const [heightCm, setHeightCm] = useState("");
-  const [weightKg, setWeightKg] = useState("");
+  const {
+    unit,
+    heightCm,
+    weightKg,
+    heightFt,
+    heightIn,
+    weightLbs,
+    bmi,
+    category,
+  } = useAppSelector((state) => state.bmi);
 
-  const [heightFt, setHeightFt] = useState("");
-  const [heightIn, setHeightIn] = useState("");
-  const [weightLbs, setWeightLbs] = useState("");
+  const setField = (field) => (value) =>
+    dispatch(fieldChanged({ field, value }));
 
-  const [bmi, setBmi] = useState(null);
-  const [category, setCategory] = useState("");
+  const setHeightCm = setField("heightCm");
+  const setWeightKg = setField("weightKg");
+  const setHeightFt = setField("heightFt");
+  const setHeightIn = setField("heightIn");
+  const setWeightLbs = setField("weightLbs");
 
 
   /*
@@ -67,21 +83,27 @@ export default function BMICalculator() {
     }
 
 
-    setBmi(calculatedBMI.toFixed(1));
-
+    let nextCategory;
 
     if (calculatedBMI < 18.5) {
-      setCategory("Underweight");
+      nextCategory = "Underweight";
 
     } else if (calculatedBMI < 25) {
-      setCategory("Normal weight");
+      nextCategory = "Normal weight";
 
     } else if (calculatedBMI < 30) {
-      setCategory("Overweight");
+      nextCategory = "Overweight";
 
     } else {
-      setCategory("Obesity");
+      nextCategory = "Obesity";
     }
+
+    dispatch(
+      resultSet({
+        bmi: calculatedBMI.toFixed(1),
+        category: nextCategory,
+      })
+    );
   };
 
 
@@ -92,12 +114,7 @@ export default function BMICalculator() {
   */
 
   const changeUnit = (newUnit) => {
-
-    setUnit(newUnit);
-
-    setBmi(null);
-
-    setCategory("");
+    dispatch(unitChanged(newUnit));
   };
 
 

@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import {
   ArrowLeft,
@@ -19,151 +18,73 @@ import IngredientRow from "./IngredientRow";
 import NutritionSummary from "./NutritionSummary";
 
 import {
-  calculateRecipeNutrition,
   hasRecipeErrors,
   validateRecipe,
 } from "./recipeUtils";
 
-const STORAGE_KEY = "calovision_saved_recipes";
-
-// ------------------------------------------------------------
-// Create a new empty ingredient row
-// ------------------------------------------------------------
-
-function createIngredient() {
-  return {
-    id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
-    ingredientId: "",
-    quantity: "",
-    unit: "g",
-  };
-}
+import {
+  useAppDispatch,
+  useAppSelector,
+} from "../../lib/store/hooks";
+import {
+  calculatorReset,
+  errorsSet,
+  ingredientAdded,
+  ingredientRemoved,
+  ingredientUpdated,
+  recipeDeleted,
+  recipeLoaded,
+  recipeNameChanged,
+  recipeSaved,
+  savedRecipesToggled,
+  selectRecipeNutrition,
+  servingsChanged,
+} from "../../lib/store/slices/recipeSlice";
 
 export default function RecipeNutritionCalculator() {
-  const [recipeName, setRecipeName] = useState("");
-  const [servings, setServings] = useState(4);
+  // Recipe form, validation errors and saved recipes live in the recipe
+  // slice. Saved recipes are written to localStorage by the persistence
+  // listener, and the success message clears itself there too.
+  const dispatch = useAppDispatch();
 
-  const [ingredients, setIngredients] = useState([
-    createIngredient(),
-  ]);
+  const {
+    recipeName,
+    servings,
+    ingredients,
+    errors,
+    savedRecipes,
+    savedMessage,
+    showSavedRecipes,
+    editingRecipeId,
+  } = useAppSelector((state) => state.recipe);
 
-  const [errors, setErrors] = useState({
-    ingredients: {},
-    servings: "",
-  });
+  // Nutrition is derived by a memoized selector, so it updates whenever
+  // the ingredients or servings change.
+  const nutrition = useAppSelector(selectRecipeNutrition);
 
-  const [savedRecipes, setSavedRecipes] = useState([]);
-  const [savedMessage, setSavedMessage] = useState("");
+  const setRecipeName = (name) =>
+    dispatch(recipeNameChanged(name));
 
-  const [showSavedRecipes, setShowSavedRecipes] = useState(false);
+  const setServings = (value) =>
+    dispatch(servingsChanged(value));
 
-  const [editingRecipeId, setEditingRecipeId] = useState(null);
-
-  // ----------------------------------------------------------
-  // Load saved recipes from localStorage
-  // ----------------------------------------------------------
-
-  useEffect(() => {
-    try {
-      const storedRecipes = localStorage.getItem(STORAGE_KEY);
-
-      if (!storedRecipes) {
-        return;
-      }
-
-      const parsedRecipes = JSON.parse(storedRecipes);
-
-      if (Array.isArray(parsedRecipes)) {
-        setSavedRecipes(parsedRecipes);
-      }
-    } catch (error) {
-      console.error("Could not load saved recipes:", error);
-    }
-  }, []);
+  const toggleSavedRecipes = () =>
+    dispatch(savedRecipesToggled());
 
   // ----------------------------------------------------------
-  // Calculate nutrition automatically.
-  //
-  // useMemo means the calculation updates whenever the
-  // ingredients or servings change.
-  // ----------------------------------------------------------
-
-  const nutrition = useMemo(() => {
-    return calculateRecipeNutrition(
-      ingredients,
-      servings
-    );
-  }, [ingredients, servings]);
-
-  // ----------------------------------------------------------
-  // Update an ingredient
+  // Ingredient actions
   // ----------------------------------------------------------
 
   const updateIngredient = (index, changes) => {
-    setIngredients((currentIngredients) =>
-      currentIngredients.map((ingredient, ingredientIndex) =>
-        ingredientIndex === index
-          ? {
-              ...ingredient,
-              ...changes,
-            }
-          : ingredient
-      )
-    );
-
-    // Clear validation errors for this row when the user
-    // starts changing it again.
-    setErrors((currentErrors) => ({
-      ...currentErrors,
-      ingredients: {
-        ...currentErrors.ingredients,
-        [index]: {},
-      },
-    }));
+    dispatch(ingredientUpdated({ index, changes }));
   };
-
-  // ----------------------------------------------------------
-  // Add a new ingredient
-  // ----------------------------------------------------------
 
   const addIngredient = () => {
-    setIngredients((currentIngredients) => [
-      ...currentIngredients,
-      createIngredient(),
-    ]);
+    dispatch(ingredientAdded());
   };
-
-  // ----------------------------------------------------------
-  // Remove an ingredient
-  // ----------------------------------------------------------
 
   const removeIngredient = (index) => {
-    setIngredients((currentIngredients) =>
-      currentIngredients.filter(
-        (_, ingredientIndex) =>
-          ingredientIndex !== index
-      )
-    );
-
-    setErrors((currentErrors) => ({
-      ...currentErrors,
-      ingredients: {},
-    }));
-  };
-
-  // ----------------------------------------------------------
-  // Validate the recipe before saving
-  // ----------------------------------------------------------
-
-  const validateCurrentRecipe = () => {
-    const validationErrors = validateRecipe(
-      ingredients,
-      servings
-    );
-
-    setErrors(validationErrors);
-
-    return !hasRecipeErrors(validationErrors);
+    dispatch(ingredientRemoved(index));
   };
 
   // ----------------------------------------------------------
@@ -174,13 +95,16 @@ export default function RecipeNutritionCalculator() {
     const isEditing = Boolean(editingRecipeId);
 
     // Don't save invalid recipes.
-    if (!validateCurrentRecipe()) {
-      setSavedMessage("");
+    const validationErrors = validateRecipe(
+      ingredients,
+      servings
+    );
+
+    dispatch(errorsSet(validationErrors));
+
+    if (hasRecipeErrors(validationErrors)) {
       return;
     }
-
-    const cleanName =
-      recipeName.trim() || "My Nutrition Recipe";
 
     const recipe = {
       id:
@@ -189,7 +113,7 @@ export default function RecipeNutritionCalculator() {
           .toString(36)
           .slice(2)}`,
 
-      name: cleanName,
+      name: recipeName.trim() || "My Nutrition Recipe",
 
       servings: Number(servings),
 
@@ -202,79 +126,15 @@ export default function RecipeNutritionCalculator() {
       updatedAt: new Date().toISOString(),
     };
 
-    setSavedRecipes((currentRecipes) => {
-      const recipeAlreadyExists = currentRecipes.some(
-        (item) => item.id === recipe.id
-      );
-
-      let updatedRecipes;
-
-      if (recipeAlreadyExists) {
-        updatedRecipes = currentRecipes.map((item) =>
-          item.id === recipe.id ? recipe : item
-        );
-      } else {
-        updatedRecipes = [
-          recipe,
-          ...currentRecipes,
-        ];
-      }
-
-      try {
-        localStorage.setItem(
-          STORAGE_KEY,
-          JSON.stringify(updatedRecipes)
-        );
-      } catch (error) {
-        console.error(
-          "Could not save recipe:",
-          error
-        );
-      }
-
-      return updatedRecipes;
-    });
-
-    setEditingRecipeId(recipe.id);
-
-    setSavedMessage(
-      isEditing
-        ? "Recipe updated successfully."
-        : "Recipe saved successfully."
-    );
-
-    // Remove the success message after a short delay.
-    setTimeout(() => {
-      setSavedMessage("");
-    }, 2500);
+    dispatch(recipeSaved({ recipe, isEditing }));
   };
 
   // ----------------------------------------------------------
-  // Load a saved recipe
+  // Load / delete / reset
   // ----------------------------------------------------------
 
   const loadRecipe = (recipe) => {
-    setRecipeName(recipe.name || "");
-
-    setServings(recipe.servings || 1);
-
-    setIngredients(
-      Array.isArray(recipe.ingredients) &&
-        recipe.ingredients.length > 0
-        ? recipe.ingredients
-        : [createIngredient()]
-    );
-
-    setEditingRecipeId(recipe.id);
-
-    setErrors({
-      ingredients: {},
-      servings: "",
-    });
-
-    setSavedMessage("");
-
-    setShowSavedRecipes(false);
+    dispatch(recipeLoaded(recipe));
 
     window.scrollTo({
       top: 0,
@@ -282,55 +142,12 @@ export default function RecipeNutritionCalculator() {
     });
   };
 
-  // ----------------------------------------------------------
-  // Delete a saved recipe
-  // ----------------------------------------------------------
-
   const deleteRecipe = (recipeId) => {
-    const updatedRecipes = savedRecipes.filter(
-      (recipe) => recipe.id !== recipeId
-    );
-
-    setSavedRecipes(updatedRecipes);
-
-    try {
-      localStorage.setItem(
-        STORAGE_KEY,
-        JSON.stringify(updatedRecipes)
-      );
-    } catch (error) {
-      console.error(
-        "Could not update saved recipes:",
-        error
-      );
-    }
-
-    // If the deleted recipe was currently being edited,
-    // reset the calculator.
-    if (editingRecipeId === recipeId) {
-      resetCalculator();
-    }
+    dispatch(recipeDeleted(recipeId));
   };
 
-  // ----------------------------------------------------------
-  // Start a completely new recipe
-  // ----------------------------------------------------------
-
   const resetCalculator = () => {
-    setRecipeName("");
-    setServings(4);
-
-    setIngredients([
-      createIngredient(),
-    ]);
-
-    setErrors({
-      ingredients: {},
-      servings: "",
-    });
-
-    setSavedMessage("");
-    setEditingRecipeId(null);
+    dispatch(calculatorReset());
   };
 
   return (
@@ -478,18 +295,11 @@ export default function RecipeNutritionCalculator() {
                     max="1000"
                     step="0.5"
                     value={servings}
-                    onChange={(event) => {
+                    onChange={(event) =>
                       setServings(
                         event.target.value
-                      );
-
-                      setErrors(
-                        (currentErrors) => ({
-                          ...currentErrors,
-                          servings: "",
-                        })
-                      );
-                    }}
+                      )
+                    }
                     className={`w-full rounded-xl border bg-gray-50 px-4 py-3 text-sm font-medium text-gray-800 outline-none transition focus:border-[#4dbb08] focus:bg-white ${
                       errors.servings
                         ? "border-red-400"
@@ -715,11 +525,7 @@ export default function RecipeNutritionCalculator() {
           <div className="rounded-[24px] border border-gray-100 bg-white p-6 shadow-sm sm:p-7">
             <button
               type="button"
-              onClick={() =>
-                setShowSavedRecipes(
-                  !showSavedRecipes
-                )
-              }
+              onClick={toggleSavedRecipes}
               className="flex w-full items-center justify-between text-left"
             >
               <div className="flex items-center gap-3">

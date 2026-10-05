@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 
+import { useAppDispatch, useAppSelector } from "../lib/store/hooks";
+import { billingYearlySet } from "../lib/store/slices/uiSlice";
 import {
   fadeUp,
   staggerContainer,
@@ -89,7 +91,9 @@ export default function Pricing() {
     true  = Yearly
   */
 
-  const [isYearly, setIsYearly] = useState(false);
+  const dispatch = useAppDispatch();
+  const isYearly = useAppSelector((state) => state.ui.billingYearly);
+  const setIsYearly = (yearly) => dispatch(billingYearlySet(yearly));
 
 
   return (

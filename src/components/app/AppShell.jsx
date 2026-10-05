@@ -1,14 +1,18 @@
 "use client";
 
-import { useState } from "react";
 import { AnimatePresence, motion } from "motion/react";
+
+import { useAppDispatch, useAppSelector } from "../../lib/store/hooks";
+import { appSidebarSet } from "../../lib/store/slices/uiSlice";
 
 import Sidebar from "./Sidebar";
 import TopBar from "./TopBar";
 import MobileNav from "./MobileNav";
 
 export default function AppShell({ children }) {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const dispatch = useAppDispatch();
+  const sidebarOpen = useAppSelector((state) => state.ui.appSidebarOpen);
+  const setSidebarOpen = (open) => dispatch(appSidebarSet(open));
 
   return (
     <div className="min-h-screen bg-[#f6f9f1] text-[#171717]">
