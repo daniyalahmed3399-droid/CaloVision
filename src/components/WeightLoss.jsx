@@ -102,54 +102,10 @@ export default function WeightLoss() {
 
 
   /*
-    =========================
-    TOUCH START
-    =========================
+    Touch devices use the browser's native horizontal swipe
+    (with scroll snapping on small screens), so only mouse
+    dragging is handled in JavaScript.
   */
-
-  const handleTouchStart = (e) => {
-
-    if (!sliderRef.current) return;
-
-    setIsDragging(true);
-
-    setStartX(
-      e.touches[0].pageX -
-        sliderRef.current.offsetLeft
-    );
-
-    setScrollLeft(
-      sliderRef.current.scrollLeft
-    );
-  };
-
-
-  /*
-    =========================
-    TOUCH MOVE
-    =========================
-  */
-
-  const handleTouchMove = (e) => {
-
-    if (
-      !isDragging ||
-      !sliderRef.current
-    ) {
-      return;
-    }
-
-    const x =
-      e.touches[0].pageX -
-      sliderRef.current.offsetLeft;
-
-    const walk =
-      (x - startX) * 1.5;
-
-    sliderRef.current.scrollLeft =
-      scrollLeft - walk;
-  };
-
 
   return (
     <section
@@ -231,10 +187,6 @@ export default function WeightLoss() {
         onMouseUp={stopDragging}
         onMouseLeave={stopDragging}
 
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={stopDragging}
-
         initial={{
           opacity: 0,
           y: 50,
@@ -260,9 +212,13 @@ export default function WeightLoss() {
           mt-16
           flex
           gap-6
+          snap-x
+          snap-mandatory
+          scroll-px-6
           overflow-x-auto
           select-none
           px-6
+          lg:snap-none
           lg:px-8
 
           ${
@@ -304,6 +260,7 @@ export default function WeightLoss() {
             className="
               w-[85vw]
               shrink-0
+              snap-start
               overflow-hidden
 
               sm:w-[65vw]
@@ -319,10 +276,11 @@ export default function WeightLoss() {
 
               className="
                 pointer-events-none
-                h-[480px]
+                aspect-[1125/825]
                 w-full
                 object-cover
 
+                sm:aspect-auto
                 sm:h-[560px]
 
                 lg:h-[650px]
