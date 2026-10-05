@@ -25,7 +25,7 @@ There is no test runner configured. `npm run lint` is clean (0 errors; two `<img
 
 Two distinct halves share one app:
 
-1. **Public marketing site + calculators** — `src/app/page.js` composes the landing sections in `src/components/*.jsx`. `/calorie-calculator`, `/recipe-nutrition` and `/meal-planner` are standalone tools (pure logic in `CaloriesCalculator.jsx`, `recipe/recipeUtils.js`, `meal-planner/mealPlannerUtils.js`; their state is in the Redux slices, and recipes/planner persist to `localStorage` via `persistence.js`). These three share one page design: green header band with a "Back to CaloVision" link, then `rounded-[24px]` cards. Match it for new tool pages.
+1. **Public marketing site + calculators** — `src/app/page.js` composes the landing sections in `src/components/*.jsx`. `/calorie-calculator`, `/recipe-nutrition` and `/meal-planner` are standalone tools (pure logic in `CaloriesCalculator.jsx`, `recipe/recipeUtils.js`, `meal-planner/mealPlannerUtils.js`, and `lib/bmi.js` for the landing-page BMI calculator; their state is in the Redux slices, and recipes/planner persist to `localStorage` via `persistence.js`). Keep validation and maths in pure modules like these, separate from components, so they can be tested without a browser. Numeric limits are shared across tools (height 120–230 cm, weight 30–300 kg, from `components/onboarding/options.js`). These three share one page design: green header band with a "Back to CaloVision" link, then `rounded-[24px]` cards. Match it for new tool pages.
 2. **Authenticated web app** (implementing `~/Desktop/CaloVision_Guide.pdf`, a frontend build guide) — routes under `/app/*`, plus `/login`, `/signup`, `/forgot-password`, `/reset-password`, `/onboarding`.
 
 ### State management (Redux Toolkit) — the standard for all new features
@@ -47,6 +47,7 @@ All shared, persisted or business state lives in a Redux Toolkit store in `src/l
 - Protection is two layers: `src/proxy.js` redirects logged-out visitors using a marker cookie (`cv_session`) before render; `AuthGate` (client) then verifies the session and routes by `mode`: `guest` (login/signup pages), `onboarding`, `app`. Un-onboarded users are forced to `/onboarding`; onboarded users are bounced out of it. `?next=` is honored only for same-site paths.
 - `saveOnboarding` deliberately returns the updated user **without** putting it in `auth.user`; the `onboarding` slice keeps it as `reviewUser`, and only `applyUser` (on "Continue") flips `onboarded`, which is what triggers the redirect to the dashboard.
 - `src/lib/session.js` is the only place that touches the token/cookie. Moving to a real httpOnly backend cookie means changing it and `proxy.js` together.
+- **Hydration rule**: the store restores the session right after mount, but React hydrates `<Suspense>` boundaries later than that. `useAuth()` therefore reports `status: "loading"` / `user: null` until the page has hydrated (via `useSyncExternalStore`'s server snapshot). Read auth state only through `useAuth()` for anything rendered on the server; reading `state.auth` directly during hydration reintroduces the "server rendered HTML didn't match" error (seen in `(auth)/layout.js`). The same applies to any server-rendered UI whose first render depends on state that changes right after mount.
 
 ### API layer and the mock backend
 
@@ -59,13 +60,26 @@ The real CaloVision API docs have **not** been provided, so no endpoints are inv
 
 ### Rules from the build guide worth remembering
 
-- **Never compute calorie/macro/BMI targets in the frontend** for the authenticated app; display what the backend returns. (The public calorie calculator page is a separate marketing tool and does its own maths.)
+- **Never compute calorie/macro/BMI targets in the frontend** for the authenticated app; display what the backend returns. (The public calorie and BMI calculators are separate marketing tools and do their own maths, with input validation.)
 - Every API-backed screen needs loading, empty, error and validation states. Use `components/ui/Skeleton.jsx` (`PageSkeleton`, `SkeletonCard`, ...) and add `loading.js` files per route; `components/ui/` also has `Button`, `TextField`, `FormAlert`, `PageHeader`, `EmptyState`.
 - Every page must work at mobile, tablet and desktop widths. The app shell (`components/app/`) uses a sidebar on desktop and bottom nav on mobile.
 - Don't promise web-impossible features: no phone health-app step sync (manual entry only), browser notifications only on opt-in, web payments need a web provider (not mobile-store billing), voice/camera need permission-denied fallbacks.
 - Most `/app/*` pages (`food`, `activity`, `progress`, `plans`, `settings`) are `ComingSoon` placeholders; only auth, onboarding and the shell are real.
 
+## Known gaps (from the 2026-10-05 QA pass — delete each line when fixed)
+
+- **Open redirect**: `safeNextPath` in `AuthGate.jsx` blocks `//host` and `https://host` but not `/\host` or `/<tab>/host`. Fix by parsing with `new URL(value, location.origin)` and requiring the same origin.
+- **Mock is the default backend** when `NEXT_PUBLIC_USE_MOCK_API` is unset, including in production builds (plain-text passwords in localStorage, reset code shown on screen). It should default to mock only outside production.
+- **Unlinked labels**: the BMI inputs and the `FoodRow` / `IngredientRow` fields have visible `<label>`s without `htmlFor`/`id`. `TextField` shows the correct pattern.
+- **No error boundaries**: there is no `error.js`, `global-error.js` or `not-found.js`, no retry state when session restore fails, and no `ErrorState`/`Toast` components yet.
+- **Calorie calculator floor**: the public calorie calculator can recommend ~400 kcal/day for extreme profiles; add a minimum and a warning.
+- **No security headers** (CSP, `X-Frame-Options`, `nosniff`, `Referrer-Policy`, HSTS) and `X-Powered-By` is exposed; set them in `next.config.mjs`.
+- **Imperial height validation** in `onboarding/validate.js` and `CaloriesCalculator.jsx` accepts negative inches, and its message ("3'11\" and 7'7\"") disagrees with the 120–230 cm check at both ends (`lib/bmi.js` uses whole-inch limits to avoid this).
+- **Heavy images**: the landing page loads ~3.7 MB (`main-hero.webp`, `bmi.webp` ≈1.1 MB each, `hero-bg.png`); components use `<img>` rather than `next/image`. Each `/app` placeholder page and the landing page also render two `<h1>`s.
+
 ## Local development gotchas
 
-- Port 3000 may be occupied by another service on this machine; `.claude/launch.json` uses an auto-assigned port. A dev server may already be running — check before starting another (Next refuses to run two).
+- Port 3000 may be occupied by another service on this machine; `.claude/launch.json` uses an auto-assigned port. A dev server may already be running (often on 3001) — check before starting another (Next refuses to run two).
 - `.env.example` is tracked (via a `!.env.example` rule in `.gitignore`); real `.env*` files are ignored.
+- **Testing without a test runner**: pure modules (`lib/bmi.js`, `onboarding/validate.js`, `recipeUtils.js`, `mealPlannerUtils.js`, `lib/api/mock.js` with a `localStorage` shim) can be exercised with plain Node scripts. Imports omit file extensions (bundler style), so Node needs a small resolver hook that appends `.js`; keep such scripts in the scratchpad, not the repo.
+- **Browser verification**: when the Browser pane is hidden, `requestAnimationFrame` pauses, so `motion` exit animations never finish and `AnimatePresence mode="wait"` swaps (onboarding steps, BMI metric/imperial toggle) leave the old DOM in place. Assert on Redux state instead (find the store via the React fiber tree on `document`/`body` and read `getState()`), and dispatch actions directly where the UI can't render. For realistic QA run `npx next build && npx next start -p <port>`; stop it by PID (`ss -ltnp | grep :<port>`), because `pkill -f` can match your own shell.
