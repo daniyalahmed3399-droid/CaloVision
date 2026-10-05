@@ -10,8 +10,12 @@ import {
   ArrowRight,
 } from "lucide-react";
 
+import { useAuth } from "./auth/AuthProvider";
+
 export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const { status } = useAuth();
+  const loggedIn = status === "authenticated";
 
   const navLinks = [
     {
@@ -126,11 +130,39 @@ export default function Navbar() {
               whileTap={{
                 scale: 0.97,
               }}
-              className="ml-5 flex items-center gap-2 rounded-xl bg-[#17251a] px-5 py-3 text-[13px] font-semibold text-white transition-colors duration-300 hover:bg-[#4dbb08]"
+              className="ml-4 flex items-center gap-2 rounded-xl bg-[#17251a] px-5 py-3 text-[13px] font-semibold text-white transition-colors duration-300 hover:bg-[#4dbb08]"
             >
               Appointment
               <ArrowRight size={15} />
             </motion.a>
+
+            {/* Account */}
+            <div className="ml-3 flex items-center gap-2 border-l border-gray-200 pl-3">
+              {loggedIn ? (
+                <Link
+                  href="/app/dashboard"
+                  className="rounded-xl bg-[#4dbb08] px-5 py-3 text-[13px] font-semibold text-white transition-colors hover:bg-[#3c9705]"
+                >
+                  Dashboard
+                </Link>
+              ) : (
+                <>
+                  <Link
+                    href="/login"
+                    className="rounded-xl px-3 py-3 text-[13px] font-semibold text-gray-700 transition-colors hover:bg-[#f3f7ef] hover:text-[#4dbb08]"
+                  >
+                    Log in
+                  </Link>
+
+                  <Link
+                    href="/signup"
+                    className="rounded-xl bg-[#4dbb08] px-5 py-3 text-[13px] font-semibold text-white transition-colors hover:bg-[#3c9705]"
+                  >
+                    Sign up
+                  </Link>
+                </>
+              )}
+            </div>
           </div>
         </nav>
       </motion.header>
@@ -309,6 +341,37 @@ export default function Navbar() {
                   Appointment
                   <ArrowRight size={15} />
                 </a>
+
+                {/* Mobile account links */}
+                <div className="mt-3 grid grid-cols-2 gap-3">
+                  {loggedIn ? (
+                    <Link
+                      href="/app/dashboard"
+                      onClick={() => setMobileOpen(false)}
+                      className="col-span-2 flex items-center justify-center rounded-xl bg-[#4dbb08] px-5 py-3 text-sm font-semibold text-white"
+                    >
+                      Dashboard
+                    </Link>
+                  ) : (
+                    <>
+                      <Link
+                        href="/login"
+                        onClick={() => setMobileOpen(false)}
+                        className="flex items-center justify-center rounded-xl border border-gray-200 px-5 py-3 text-sm font-semibold text-gray-700"
+                      >
+                        Log in
+                      </Link>
+
+                      <Link
+                        href="/signup"
+                        onClick={() => setMobileOpen(false)}
+                        className="flex items-center justify-center rounded-xl bg-[#4dbb08] px-5 py-3 text-sm font-semibold text-white"
+                      >
+                        Sign up
+                      </Link>
+                    </>
+                  )}
+                </div>
               </div>
             </motion.div>
           )}

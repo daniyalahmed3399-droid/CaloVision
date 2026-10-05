@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { motion } from "motion/react";
+import { AnimatePresence, motion } from "motion/react";
 
 import Sidebar from "./Sidebar";
 import TopBar from "./TopBar";
@@ -16,32 +16,37 @@ export default function AppShell({ children }) {
       <Sidebar />
 
       {/* Mobile Sidebar */}
-      {sidebarOpen && (
-        <>
-          {/* Overlay */}
-          <motion.button
-            type="button"
-            aria-label="Close navigation"
-            className="fixed inset-0 z-40 bg-black/30 lg:hidden"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            onClick={() => setSidebarOpen(false)}
-          />
+      <AnimatePresence>
+        {sidebarOpen && (
+          <>
+            {/* Overlay */}
+            <motion.button
+              key="overlay"
+              type="button"
+              aria-label="Close navigation"
+              className="fixed inset-0 z-40 bg-black/30 lg:hidden"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setSidebarOpen(false)}
+            />
 
-          <motion.div
-            className="fixed left-0 top-0 z-50 h-full w-[280px] lg:hidden"
-            initial={{ x: "-100%" }}
-            animate={{ x: 0 }}
-            transition={{
-              duration: 0.3,
-              ease: [0.22, 1, 0.36, 1],
-            }}
-          >
-            <Sidebar mobile onClose={() => setSidebarOpen(false)} />
-          </motion.div>
-        </>
-      )}
+            <motion.div
+              key="drawer"
+              className="fixed left-0 top-0 z-50 h-full w-[280px] lg:hidden"
+              initial={{ x: "-100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "-100%" }}
+              transition={{
+                duration: 0.3,
+                ease: [0.22, 1, 0.36, 1],
+              }}
+            >
+              <Sidebar mobile onClose={() => setSidebarOpen(false)} />
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
 
       {/* Main Application Area */}
       <div className="lg:pl-[270px]">
