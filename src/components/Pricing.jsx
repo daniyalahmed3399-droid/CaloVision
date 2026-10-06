@@ -124,13 +124,13 @@ export default function Pricing() {
 
           <div className="mb-5 flex items-center justify-center gap-3">
 
-            <span className="h-[2px] w-10 bg-green-600" />
+            <span className="h-[2px] w-10 bg-[#4dbb08]" />
 
-            <span className="text-sm font-semibold uppercase tracking-[0.18em] text-green-600">
+            <span className="text-sm font-semibold uppercase tracking-[0.18em] text-[#4dbb08]">
               Pricing
             </span>
 
-            <span className="h-[2px] w-10 bg-green-600" />
+            <span className="h-[2px] w-10 bg-[#4dbb08]" />
 
           </div>
 
@@ -141,7 +141,7 @@ export default function Pricing() {
 
             Choose Your
 
-            <span className="block text-green-600">
+            <span className="block text-[#4dbb08]">
               Perfect Plan
             </span>
 
@@ -190,7 +190,7 @@ export default function Pricing() {
                 stiffness: 400,
                 damping: 30,
               }}
-              className={`absolute top-1 bottom-1 w-[105px] rounded-full bg-green-600 ${
+              className={`absolute top-1 bottom-1 w-[105px] rounded-full bg-[#4dbb08] ${
                 isYearly
                   ? "left-[106px]"
                   : "left-1"
@@ -325,7 +325,7 @@ function PricingCard({
           ease: "easeOut",
         }}
 
-        className="absolute left-0 top-0 h-1 bg-green-600"
+        className="absolute left-0 top-0 h-1 bg-[#4dbb08]"
       />
 
 
@@ -362,7 +362,7 @@ function PricingCard({
               ease: "easeOut",
             }}
 
-            className="absolute right-6 top-6 rounded-full bg-green-600 px-4 py-2 text-xs font-bold uppercase tracking-wide text-white shadow-lg"
+            className="absolute right-6 top-6 rounded-full bg-[#4dbb08] px-4 py-2 text-xs font-bold uppercase tracking-wide text-white shadow-lg"
           >
             {plan.badge}
           </motion.div>
@@ -499,7 +499,7 @@ function PricingCard({
             className="flex items-center gap-3 text-sm text-gray-600"
           >
 
-            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-green-100 text-xs font-bold text-green-600">
+            <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#e7f2df] text-xs font-bold text-[#4dbb08]">
               ✓
             </span>
 
@@ -518,7 +518,7 @@ function PricingCard({
       ================================================== */}
 
       <motion.a
-        href="#appointment"
+        href="/signup"
 
         whileHover={{
           scale: 1.03,
@@ -535,7 +535,7 @@ function PricingCard({
           damping: 18,
         }}
 
-        className="mt-9 flex w-full items-center justify-center gap-2 rounded-full border border-gray-900 px-6 py-4 text-sm font-semibold text-gray-900 transition-colors duration-300 hover:border-green-600 hover:bg-green-600 hover:text-white"
+        className="mt-9 flex w-full items-center justify-center gap-2 rounded-full border border-gray-900 px-6 py-4 text-sm font-semibold text-gray-900 transition-colors duration-300 hover:border-[#4dbb08] hover:bg-[#4dbb08] hover:text-white"
       >
 
         Choose Plan

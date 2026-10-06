@@ -86,7 +86,10 @@ export default function BMICalculator() {
 
 
   return (
-    <section className="overflow-hidden bg-[#f7f9f3] px-6 py-24 lg:px-8 lg:py-32">
+    <section
+      id="bmi"
+      className="overflow-hidden bg-[#f7f9f3] px-6 py-24 lg:px-8 lg:py-32"
+    >
 
       <div className="mx-auto grid max-w-[1320px] grid-cols-1 items-center gap-14 lg:grid-cols-2 lg:gap-20">
 
@@ -96,14 +99,14 @@ export default function BMICalculator() {
         ========================= */}
 
         <motion.div
-          variants={fadeLeft}
+          variants={fadeRight}
           initial="hidden"
           whileInView="visible"
           viewport={{
             once: true,
             amount: 0.25,
           }}
-          className="relative"
+          className="relative lg:order-2"
         >
 
           <motion.div
@@ -126,7 +129,7 @@ export default function BMICalculator() {
               ease: "easeOut",
             }}
 
-            className="absolute -left-10 -top-10 h-40 w-40 rounded-full bg-[#e4eedc]"
+            className="absolute -right-10 -top-10 h-40 w-40 rounded-full bg-[#e4eedc]"
           />
 
 
@@ -173,10 +176,10 @@ export default function BMICalculator() {
               duration: 0.6,
             }}
 
-            className="absolute bottom-6 left-6 rounded-2xl bg-white px-6 py-5 shadow-xl"
+            className="absolute bottom-6 right-6 rounded-2xl bg-white px-6 py-5 shadow-xl"
           >
 
-            <p className="text-xs font-semibold uppercase tracking-[0.15em] text-green-600">
+            <p className="text-xs font-semibold uppercase tracking-[0.15em] text-[#4dbb08]">
               Healthy Living
             </p>
 
@@ -194,13 +197,14 @@ export default function BMICalculator() {
         ========================= */}
 
         <motion.div
-          variants={fadeRight}
+          variants={fadeLeft}
           initial="hidden"
           whileInView="visible"
           viewport={{
             once: true,
             amount: 0.25,
           }}
+          className="lg:order-1"
         >
 
           <motion.div
@@ -208,9 +212,9 @@ export default function BMICalculator() {
             className="mb-4 flex items-center gap-3"
           >
 
-            <span className="h-[2px] w-10 bg-green-600" />
+            <span className="h-[2px] w-10 bg-[#4dbb08]" />
 
-            <span className="text-sm font-semibold uppercase tracking-[0.18em] text-green-600">
+            <span className="text-sm font-semibold uppercase tracking-[0.18em] text-[#4dbb08]">
               Our Services
             </span>
 
@@ -220,7 +224,7 @@ export default function BMICalculator() {
           <h2 className="text-4xl font-bold capitalize leading-tight text-gray-900 sm:text-5xl">
             Calculate Body
 
-            <span className="block text-green-600">
+            <span className="block text-[#4dbb08]">
               Mass Index
             </span>
           </h2>
@@ -255,8 +259,8 @@ export default function BMICalculator() {
               onClick={() => changeUnit("metric")}
               className={`rounded-full px-6 py-3 text-sm font-semibold transition-all duration-300 ${
                 unit === "metric"
-                  ? "bg-green-600 text-white shadow-md"
-                  : "text-gray-600 hover:text-green-600"
+                  ? "bg-[#4dbb08] text-white shadow-md"
+                  : "text-gray-600 hover:text-[#4dbb08]"
               }`}
             >
               Metric
@@ -267,8 +271,8 @@ export default function BMICalculator() {
               onClick={() => changeUnit("imperial")}
               className={`rounded-full px-6 py-3 text-sm font-semibold transition-all duration-300 ${
                 unit === "imperial"
-                  ? "bg-green-600 text-white shadow-md"
-                  : "text-gray-600 hover:text-green-600"
+                  ? "bg-[#4dbb08] text-white shadow-md"
+                  : "text-gray-600 hover:text-[#4dbb08]"
               }`}
             >
               Imperial
@@ -432,7 +436,7 @@ export default function BMICalculator() {
                 scale: 0.97,
               }}
 
-              className="group mt-6 inline-flex items-center gap-3 rounded-full bg-green-600 px-7 py-4 text-sm font-semibold text-white"
+              className="group mt-6 inline-flex items-center gap-3 rounded-full bg-[#4dbb08] px-7 py-4 text-sm font-semibold text-white"
             >
 
               Calculate
@@ -495,7 +499,7 @@ export default function BMICalculator() {
                       {bmi}
                     </motion.span>
 
-                    <span className="pb-1 text-sm font-semibold text-green-600">
+                    <span className="pb-1 text-sm font-semibold text-[#4dbb08]">
                       {category}
                     </span>
 
@@ -550,7 +554,7 @@ function Input({
             setValue(e.target.value)
           }
           placeholder={placeholder}
-          className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-4 pr-14 text-sm outline-none transition-all duration-300 focus:border-green-500 focus:bg-white focus:ring-2 focus:ring-green-100"
+          className="w-full rounded-xl border border-gray-200 bg-gray-50 px-4 py-4 pr-14 text-sm outline-none transition-all duration-300 focus:border-[#4dbb08] focus:bg-white focus:ring-2 focus:ring-[#4dbb08]/20"
         />
 
         <span className="absolute right-4 top-1/2 -translate-y-1/2 text-sm font-semibold text-gray-400">

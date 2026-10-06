@@ -23,7 +23,7 @@ export default function Footer() {
   ];
 
   return (
-    <footer className="overflow-hidden bg-[#151b16] text-white">
+    <footer id="contact" className="overflow-hidden bg-[#4dbb08] text-white">
 
       {/* =========================================
           MAIN FOOTER
@@ -53,12 +53,12 @@ export default function Footer() {
               className="text-3xl font-bold tracking-tight"
             >
               Calo
-              <span className="text-green-500">
+              <span className="text-[#17251a]">
                 Vision
               </span>
             </a>
 
-            <p className="mt-6 max-w-sm text-sm leading-7 text-gray-400">
+            <p className="mt-6 max-w-sm text-sm leading-7 text-white/90">
               Transforming lives through better nutrition,
               healthier habits, and personalized guidance
               designed around your goals.
@@ -186,26 +186,26 @@ export default function Footer() {
           BOTTOM BAR
       ========================================= */}
 
-      <div className="border-t border-white/10">
+      <div className="border-t border-white/25">
 
         <div className="mx-auto flex max-w-[1320px] flex-col items-center justify-between gap-4 px-6 py-6 text-center sm:flex-row sm:text-left lg:px-8">
 
-          <p className="text-sm text-gray-500">
+          <p className="text-sm text-white/80">
             © 2026 CaloVision. All Rights Reserved.
           </p>
 
-          <div className="flex gap-6 text-sm text-gray-500">
+          <div className="flex gap-6 text-sm text-white/80">
 
             <a
               href="#"
-              className="transition-colors duration-300 hover:text-green-500"
+              className="transition-colors duration-300 hover:text-[#17251a]"
             >
               Privacy Policy
             </a>
 
             <a
               href="#"
-              className="transition-colors duration-300 hover:text-green-500"
+              className="transition-colors duration-300 hover:text-[#17251a]"
             >
               Terms & Conditions
             </a>
@@ -237,7 +237,7 @@ function FooterLink({ text }) {
     >
       <a
         href="#"
-        className="text-sm text-gray-400 transition-colors duration-300 hover:text-green-500"
+        className="text-sm text-white/90 transition-colors duration-300 hover:text-[#17251a]"
       >
         {text}
       </a>
@@ -261,7 +261,7 @@ function SocialButton({ children }) {
       whileTap={{
         scale: 0.9,
       }}
-      className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 bg-white/5 text-sm font-semibold text-gray-300 transition-colors duration-300 hover:border-green-500 hover:bg-green-600 hover:text-white"
+      className="flex h-10 w-10 items-center justify-center rounded-full border border-white/25 bg-white/10 text-sm font-semibold text-white/90 transition-colors duration-300 hover:border-white hover:bg-white hover:text-[#4dbb08]"
     >
       {children}
     </motion.a>
@@ -286,7 +286,7 @@ function ContactItem({
       className="flex items-start gap-4"
     >
 
-      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-green-600/10 text-green-500">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-white/20 text-white">
         {icon}
       </div>
 
@@ -296,7 +296,7 @@ function ContactItem({
           {title}
         </p>
 
-        <p className="mt-1 text-sm leading-6 text-gray-400">
+        <p className="mt-1 text-sm leading-6 text-white/90">
           {text}
         </p>
 

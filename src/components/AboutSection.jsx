@@ -56,9 +56,9 @@ export default function Hero() {
             variants={fadeLeft}
             className="mb-5 flex items-center gap-3"
           >
-            <span className="h-[2px] w-10 bg-green-600" />
+            <span className="h-[2px] w-10 bg-[#4dbb08]" />
 
-            <span className="text-sm font-semibold uppercase tracking-[0.18em] text-green-600">
+            <span className="text-sm font-semibold uppercase tracking-[0.18em] text-[#4dbb08]">
               About Us
             </span>
           </motion.div>
@@ -70,7 +70,7 @@ export default function Hero() {
           >
             Transforming Lives
 
-            <span className="block text-green-600">
+            <span className="block text-[#4dbb08]">
               Through Nutrition
             </span>
           </motion.h1>
@@ -80,9 +80,10 @@ export default function Hero() {
             variants={fadeUp}
             className="mt-6 max-w-[520px] text-[15px] leading-7 text-gray-600"
           >
-            It is a long established fact that a reader will be
-            distracted by the readable content of a page when looking
-            at its layout.
+            CaloVision turns your goals into a simple daily plan. Tell us
+            about yourself and we set your calorie and macro targets, then
+            help you track meals, activity and progress and stay on course
+            with guidance from our AI coach.
           </motion.p>
 
 
@@ -103,7 +104,7 @@ export default function Hero() {
                 }}
                 className="flex items-center gap-3"
               >
-                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-green-100 text-xs font-bold text-green-600">
+                <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#e7f2df] text-xs font-bold text-[#4dbb08]">
                   ✓
                 </span>
 
@@ -120,7 +121,7 @@ export default function Hero() {
             className="mt-8"
           >
             <motion.a
-              href="#services"
+              href="#ai-coaching"
               whileHover={{
                 y: -4,
                 scale: 1.02,
@@ -128,7 +129,7 @@ export default function Hero() {
               whileTap={{
                 scale: 0.97,
               }}
-              className="inline-flex items-center gap-3 rounded-full bg-green-600 px-7 py-3.5 text-sm font-semibold text-white shadow-[0_10px_25px_rgba(34,197,94,0.15)]"
+              className="inline-flex items-center gap-3 rounded-full bg-[#4dbb08] px-7 py-3.5 text-sm font-semibold text-white shadow-[0_10px_25px_rgba(34,197,94,0.15)]"
             >
               Read More
 
@@ -269,7 +270,7 @@ export default function Hero() {
               }}
               className="flex items-center gap-3"
             >
-              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-green-100 text-lg font-bold text-green-600">
+              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-[#e7f2df] text-lg font-bold text-[#4dbb08]">
                 ✓
               </div>
 

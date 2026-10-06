@@ -99,7 +99,9 @@ a {
 ========================================= */
 
 section {
-  scroll-margin-top: 110px;
+  /* Equals the fixed navbar's height (76px + 1px border) so a section jumped
+     to sits flush under it. */
+  scroll-margin-top: 77px;
 }
 
 

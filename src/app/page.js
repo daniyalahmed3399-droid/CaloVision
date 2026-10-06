@@ -1,14 +1,10 @@
 import Navbar from "../components/Navbar";
 import MainHero from "../components/MainHero";
-import AboutSection from "../components/AboutSection";
-import Services from "../components/Services";
 import BMICalculator from "../components/BMICalculator";
-import Expertise from "../components/Expertise";
-import WeightLoss from "../components/WeightLoss";
+import AboutSection from "../components/AboutSection";
+import AICoaching from "../components/AICoaching";
 import Pricing from "../components/Pricing";
-import Blog from "../components/Blog";
-import VideoTestimonials from "../components/VideoTestimonials";
-import Appointment from "../components/Appointment";
+import AppBanner from "../components/AppBanner";
 import Footer from "../components/Footer";
 
 export default function Home() {
@@ -17,27 +13,22 @@ export default function Home() {
 
       <Navbar />
 
-      {/* Actual green homepage hero */}
+      {/* Green homepage hero */}
       <MainHero />
+
+      {/* BMI calculator, directly below the hero (the hero button links here) */}
+      <BMICalculator />
+
+      {/* AI coaching: what it does, an example chat, and the sign-up call to action */}
+      <AICoaching />
 
       {/* About Us section */}
       <AboutSection />
 
-      <Services />
-
-      <BMICalculator />
-
-      <Expertise />
-
-      <WeightLoss />
-
       <Pricing />
 
-      <Blog />
-
-      <VideoTestimonials />
-
-      <Appointment />
+      {/* App banner, just above the footer */}
+      <AppBanner />
 
       <Footer />
 

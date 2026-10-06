@@ -5,7 +5,10 @@ import { ArrowRight } from "lucide-react";
 
 export default function MainHero() {
   return (
-    <section className="relative min-h-[720px] overflow-hidden bg-[#4dbb08]">
+    <section
+      id="home"
+      className="relative min-h-[720px] overflow-hidden bg-[#4dbb08]"
+    >
 
       {/* =========================================
           BACKGROUND
@@ -57,7 +60,7 @@ export default function MainHero() {
       ========================================= */}
 
       <motion.a
-        href="#appointment"
+        href="#ai-coaching"
         whileHover={{
           x: 4,
         }}
@@ -78,7 +81,7 @@ export default function MainHero() {
 
 
         {/* =========================================
-            LEFT IMAGE
+            IMAGE (left on desktop, under the text on mobile)
         ========================================= */}
 
         <motion.div
@@ -94,7 +97,7 @@ export default function MainHero() {
             duration: 1,
             ease: "easeOut",
           }}
-          className="relative flex h-[420px] items-end justify-center lg:h-[650px]"
+          className="relative order-2 flex h-[420px] items-end justify-center lg:order-1 lg:h-[650px]"
         >
 
           {/* Decorative circle */}
@@ -158,7 +161,7 @@ export default function MainHero() {
             delay: 0.2,
             ease: "easeOut",
           }}
-          className="relative z-20 pb-16 text-center lg:pb-0 lg:pl-4 lg:text-left"
+          className="relative z-20 order-1 pb-10 text-center lg:order-2 lg:pb-0 lg:pl-4 lg:text-left"
         >
 
           {/* =====================================
@@ -235,19 +238,18 @@ export default function MainHero() {
             }}
             className="mx-auto mt-5 max-w-[500px] text-sm leading-6 text-white/90 lg:mx-0"
           >
-            It is a long established fact that a reader will be
-            distracted by the readable content of a page when looking
-            at its layout. The point of using Lorem Ipsum is that it has
-            a more-or-less normal distribution of letters.
+            Get calorie and macro targets built around your goals, log
+            meals, exercise, steps and weight in one place, and plan
+            your week with free calculators and an AI coach.
           </motion.p>
 
 
           {/* =====================================
-              ABOUT US BUTTON
+              BMI BUTTON (scrolls to the calculator below)
           ===================================== */}
 
           <motion.a
-            href="#about"
+            href="#bmi"
             initial={{
               opacity: 0,
               y: 20,
@@ -273,7 +275,7 @@ export default function MainHero() {
               <ArrowRight size={17} />
             </span>
 
-            About Us
+            Calculate Your BMI
 
           </motion.a>
 

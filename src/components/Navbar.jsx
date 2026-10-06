@@ -6,13 +6,52 @@ import {
   Menu,
   X,
   ChevronDown,
-  ArrowRight,
 } from "lucide-react";
 
 import { useAuth } from "../lib/store/useAuth";
 import { useAppDispatch, useAppSelector } from "../lib/store/hooks";
 import { publicNavSet } from "../lib/store/slices/uiSlice";
 
+const navLinks = [
+  {
+    label: "Home",
+    href: "#home",
+  },
+  {
+    label: "Pages",
+    dropdown: true,
+    items: [
+      {
+        label: "Calories Calculator",
+        href: "/calorie-calculator",
+      },
+      {
+        label: "Recipe Nutrition Calculator",
+        href: "/recipe-nutrition",
+      },
+      {
+        label: "Daily Meal Planner",
+        href: "/meal-planner",
+      },
+    ],
+  },
+  {
+    label: "AI Coaching",
+    href: "#ai-coaching",
+  },
+  {
+    label: "Elements",
+    href: "#elements",
+    dropdown: true,
+  },
+  {
+    label: "Contact Us",
+    href: "#contact",
+  },
+];
+
+// Fixed, full-width bar flush with the top of the screen. It stays put while
+// the page scrolls underneath it.
 export default function Navbar() {
   const dispatch = useAppDispatch();
   const mobileOpen = useAppSelector((state) => state.ui.publicNavOpen);
@@ -20,72 +59,17 @@ export default function Navbar() {
   const { status } = useAuth();
   const loggedIn = status === "authenticated";
 
-  const navLinks = [
-    {
-      label: "Home",
-      href: "#home",
-    },
-    {
-      label: "Pages",
-      dropdown: true,
-      items: [
-        {
-          label: "Calories Calculator",
-          href: "/calorie-calculator",
-        },
-        {
-          label: "Recipe Nutrition Calculator",
-          href: "/recipe-nutrition",
-        },
-        {
-          label: "Daily Meal Planner",
-          href: "/meal-planner",
-        },
-      ],
-    },
-    {
-      label: "Services",
-      href: "#services",
-      dropdown: true,
-    },
-    {
-      label: "Blogs",
-      href: "#blog",
-      dropdown: true,
-    },
-    {
-      label: "Elements",
-      href: "#elements",
-      dropdown: true,
-    },
-    {
-      label: "Contact Us",
-      href: "#appointment",
-    },
-  ];
-
   return (
     <>
       {/* ================================================== */}
       {/* DESKTOP NAVBAR */}
       {/* ================================================== */}
 
-      <motion.header
-        initial={{
-          opacity: 0,
-          y: -30,
-        }}
-        animate={{
-          opacity: 1,
-          y: 0,
-        }}
-        transition={{
-          duration: 0.7,
-          ease: "easeOut",
-        }}
-        className="fixed left-1/2 top-5 z-[100] hidden w-[calc(100%-40px)] max-w-[1240px] -translate-x-1/2 lg:block"
-      >
-        <nav className="flex h-[78px] items-center rounded-[22px] bg-white px-5 shadow-[0_10px_40px_rgba(0,0,0,0.10)]">
+      <header className="fixed inset-x-0 top-0 z-[100] hidden border-b border-gray-100 bg-white shadow-[0_2px_20px_rgba(0,0,0,0.06)] lg:block">
+        <nav
+          aria-label="Main"
+          className="mx-auto flex h-[76px] max-w-[1320px] items-center px-6 xl:px-8"
+        >
           {/* Logo */}
           <Link
             href="/"
@@ -124,27 +108,12 @@ export default function Navbar() {
               ))}
             </div>
 
-            {/* Appointment */}
-            <motion.a
-              href="#appointment"
-              whileHover={{
-                y: -2,
-              }}
-              whileTap={{
-                scale: 0.97,
-              }}
-              className="ml-4 flex items-center gap-2 rounded-xl bg-[#17251a] px-5 py-3 text-[13px] font-semibold text-white transition-colors duration-300 hover:bg-[#4dbb08]"
-            >
-              Appointment
-              <ArrowRight size={15} />
-            </motion.a>
-
             {/* Account */}
-            <div className="ml-3 flex items-center gap-2 border-l border-gray-200 pl-3">
+            <div className="ml-3 flex items-center gap-1 border-l border-gray-200 pl-3 xl:ml-4 xl:gap-2 xl:pl-4">
               {loggedIn ? (
                 <Link
                   href="/app/dashboard"
-                  className="rounded-xl bg-[#4dbb08] px-5 py-3 text-[13px] font-semibold text-white transition-colors hover:bg-[#3c9705]"
+                  className="whitespace-nowrap rounded-xl bg-[#4dbb08] px-5 py-3 text-[13px] font-semibold text-white transition-colors hover:bg-[#3c9705]"
                 >
                   Dashboard
                 </Link>
@@ -152,14 +121,14 @@ export default function Navbar() {
                 <>
                   <Link
                     href="/login"
-                    className="rounded-xl px-3 py-3 text-[13px] font-semibold text-gray-700 transition-colors hover:bg-[#f3f7ef] hover:text-[#4dbb08]"
+                    className="whitespace-nowrap rounded-xl px-3 py-3 text-[13px] font-semibold text-gray-700 transition-colors hover:bg-[#f3f7ef] hover:text-[#4dbb08]"
                   >
                     Log in
                   </Link>
 
                   <Link
                     href="/signup"
-                    className="rounded-xl bg-[#4dbb08] px-5 py-3 text-[13px] font-semibold text-white transition-colors hover:bg-[#3c9705]"
+                    className="whitespace-nowrap rounded-xl bg-[#4dbb08] px-4 py-3 text-[13px] font-semibold text-white transition-colors hover:bg-[#3c9705] xl:px-5"
                   >
                     Sign up
                   </Link>
@@ -168,27 +137,17 @@ export default function Navbar() {
             </div>
           </div>
         </nav>
-      </motion.header>
+      </header>
 
       {/* ================================================== */}
       {/* MOBILE NAVBAR */}
       {/* ================================================== */}
 
-      <motion.header
-        initial={{
-          opacity: 0,
-          y: -20,
-        }}
-        animate={{
-          opacity: 1,
-          y: 0,
-        }}
-        transition={{
-          duration: 0.6,
-        }}
-        className="fixed left-1/2 top-4 z-[100] w-[calc(100%-24px)] -translate-x-1/2 lg:hidden"
-      >
-        <nav className="flex h-[68px] items-center justify-between rounded-[20px] bg-white px-4 shadow-[0_10px_35px_rgba(0,0,0,0.12)]">
+      <header className="fixed inset-x-0 top-0 z-[100] border-b border-gray-100 bg-white shadow-[0_2px_16px_rgba(0,0,0,0.06)] lg:hidden">
+        <nav
+          aria-label="Main"
+          className="flex h-[64px] items-center justify-between px-4"
+        >
           {/* Mobile logo */}
           <Link
             href="/"
@@ -232,31 +191,28 @@ export default function Navbar() {
           </button>
         </nav>
 
-        {/* Mobile menu */}
+        {/* Mobile menu: a full-width panel attached under the bar */}
         <AnimatePresence>
           {mobileOpen && (
             <motion.div
               initial={{
                 opacity: 0,
-                y: -10,
                 height: 0,
               }}
               animate={{
                 opacity: 1,
-                y: 0,
                 height: "auto",
               }}
               exit={{
                 opacity: 0,
-                y: -10,
                 height: 0,
               }}
               transition={{
                 duration: 0.25,
               }}
-              className="mt-2 overflow-hidden rounded-[20px] bg-white p-4 shadow-[0_15px_40px_rgba(0,0,0,0.12)]"
+              className="max-h-[calc(100vh-64px)] overflow-y-auto border-t border-gray-100 bg-white px-4 pb-4 shadow-[0_15px_30px_rgba(0,0,0,0.1)]"
             >
-              <div className="flex flex-col">
+              <div className="flex flex-col pt-2">
                 {navLinks.map((link, index) => {
                   // Pages has its own calculator links.
                   if (
@@ -333,18 +289,6 @@ export default function Navbar() {
                   );
                 })}
 
-                {/* Mobile appointment */}
-                <a
-                  href="#appointment"
-                  onClick={() =>
-                    setMobileOpen(false)
-                  }
-                  className="mt-3 flex items-center justify-center gap-2 rounded-xl bg-[#17251a] px-5 py-3 text-sm font-semibold text-white"
-                >
-                  Appointment
-                  <ArrowRight size={15} />
-                </a>
-
                 {/* Mobile account links */}
                 <div className="mt-3 grid grid-cols-2 gap-3">
                   {loggedIn ? (
@@ -379,7 +323,7 @@ export default function Navbar() {
             </motion.div>
           )}
         </AnimatePresence>
-      </motion.header>
+      </header>
     </>
   );
 }
@@ -398,7 +342,7 @@ function NavItem({ link }) {
     >
       <Link
         href={link.href || "#"}
-        className="flex items-center gap-1 rounded-xl px-3 py-3 text-[13px] font-medium text-gray-700 transition-colors duration-300 hover:bg-[#f3f7ef] hover:text-[#4dbb08]"
+        className="flex items-center gap-1 whitespace-nowrap rounded-xl px-2 py-3 text-[13px] font-medium text-gray-700 transition-colors duration-300 hover:bg-[#f3f7ef] hover:text-[#4dbb08] xl:px-3"
       >
         <span>{link.label}</span>
 
@@ -412,7 +356,7 @@ function NavItem({ link }) {
 
       {/* Dropdown */}
       {link.items && (
-        <div className="invisible absolute left-0 top-full w-[240px] translate-y-2 pt-3 opacity-0 transition-all duration-200 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100">
+        <div className="invisible absolute left-0 top-full w-[290px] translate-y-2 pt-3 opacity-0 transition-all duration-200 group-hover:visible group-hover:translate-y-0 group-hover:opacity-100">
           <div className="rounded-2xl border border-gray-100 bg-white p-2 shadow-[0_15px_40px_rgba(0,0,0,0.12)]">
             {link.items.map((item) => (
               <Link
