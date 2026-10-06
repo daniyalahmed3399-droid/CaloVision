@@ -1,9 +1,9 @@
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, nanoid } from "@reduxjs/toolkit";
 
 import { logout } from "./authSlice";
 
-// App-wide interface state: drawers, menus and display toggles that more
-// than one component might care about. Pure hover effects and animation
+// App-wide interface state: drawers, menus, toasts and display toggles that
+// more than one component might care about. Pure hover effects and animation
 // state stay inside their component.
 const uiSlice = createSlice({
   name: "ui",
@@ -12,6 +12,7 @@ const uiSlice = createSlice({
     publicNavOpen: false, // mobile menu on the marketing site
     profileMenuOpen: false,
     billingYearly: false, // pricing toggle
+    toasts: [], // [{ id, type: "success" | "error", message }]
   },
   reducers: {
     appSidebarSet(state, action) {
@@ -32,6 +33,19 @@ const uiSlice = createSlice({
     billingYearlySet(state, action) {
       state.billingYearly = action.payload;
     },
+    // dispatch(toastShown({ type: "success", message: "Saved" }))
+    toastShown: {
+      reducer(state, action) {
+        // Keep the stack short so a burst of errors can't fill the screen.
+        state.toasts = [...state.toasts, action.payload].slice(-3);
+      },
+      prepare: ({ type = "success", message }) => ({
+        payload: { id: nanoid(), type, message },
+      }),
+    },
+    toastDismissed(state, action) {
+      state.toasts = state.toasts.filter((t) => t.id !== action.payload);
+    },
   },
   extraReducers: (builder) => {
     // Close account-only UI on logout so it doesn't reappear open for the
@@ -39,6 +53,7 @@ const uiSlice = createSlice({
     builder.addCase(logout.fulfilled, (state) => {
       state.profileMenuOpen = false;
       state.appSidebarOpen = false;
+      state.toasts = [];
     });
   },
 });
@@ -50,6 +65,8 @@ export const {
   profileMenuSet,
   profileMenuToggled,
   billingYearlySet,
+  toastShown,
+  toastDismissed,
 } = uiSlice.actions;
 
 export default uiSlice.reducer;

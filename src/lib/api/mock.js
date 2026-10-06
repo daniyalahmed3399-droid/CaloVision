@@ -41,6 +41,11 @@ function userFromToken(db, token) {
   return user;
 }
 
+// Used by the mock tracking backend to find the signed-in mock user.
+export function getMockUser(token) {
+  return userFromToken(readDb(), token);
+}
+
 const ACTIVITY_MULTIPLIER = {
   sedentary: 1.2,
   light: 1.375,

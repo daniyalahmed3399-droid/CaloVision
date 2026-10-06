@@ -25,6 +25,16 @@ export function friendlyMessage(status) {
   return "Something went wrong. Please try again.";
 }
 
+// RTK Query mutations reject with a plain { status, message, fieldErrors }
+// object (see lib/store/api.js). This turns it into what a form needs.
+export function toFormError(error) {
+  return {
+    message:
+      error?.message || "Something went wrong. Please try again.",
+    fieldErrors: error?.fieldErrors || {},
+  };
+}
+
 export function toUserMessage(error) {
   if (error instanceof ApiError) return error.message;
   return "Something went wrong. Please try again.";

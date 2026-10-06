@@ -8,6 +8,7 @@ import { appSidebarSet } from "../../lib/store/slices/uiSlice";
 import Sidebar from "./Sidebar";
 import TopBar from "./TopBar";
 import MobileNav from "./MobileNav";
+import Toaster from "../ui/Toaster";
 
 export default function AppShell({ children }) {
   const dispatch = useAppDispatch();
@@ -72,6 +73,9 @@ export default function AppShell({ children }) {
 
       {/* Mobile Bottom Navigation */}
       <MobileNav />
+
+      {/* Success / error notifications from anywhere in the app */}
+      <Toaster />
     </div>
   );
 }

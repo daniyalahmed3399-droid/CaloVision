@@ -1,7 +1,9 @@
 import { createApi } from "@reduxjs/toolkit/query/react";
 
+import { USE_MOCK_API } from "../config";
 import { request } from "../api/client";
 import { ApiError } from "../api/errors";
+import { mockTracking } from "../api/mockTracking";
 import { getToken } from "../session";
 
 // RTK Query base for all backend data (dashboard, food logs, progress,
@@ -20,10 +22,19 @@ import { getToken } from "../session";
 //     }),
 //   });
 //
-// `name` is a key of `endpoints` in src/lib/api/endpoints.js.
-const baseQuery = async ({ name, body }) => {
+// `name` is a key of `endpoints` in src/lib/api/endpoints.js; `params` fill
+// path placeholders / the query string, `body` is the JSON payload.
+const baseQuery = async ({ name, body, params }) => {
+  const args = { body, params, token: getToken() };
+
   try {
-    const data = await request(name, { body, token: getToken() });
+    // Mock mode routes tracking calls to the local stand-in backend;
+    // otherwise the central client calls the real endpoint.
+    const data =
+      USE_MOCK_API && mockTracking[name]
+        ? await mockTracking[name](args)
+        : await request(name, args);
+
     return { data };
   } catch (error) {
     if (error instanceof ApiError) {

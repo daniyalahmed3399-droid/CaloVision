@@ -1,16 +1,7 @@
-import { Activity } from "lucide-react";
-
-import ComingSoon from "../../../components/app/ComingSoon";
+import ActivityPage from "../../../components/tracking/ActivityPage";
 
 export const metadata = { title: "Activity | CaloVision" };
 
-export default function ActivityPage() {
-  return (
-    <ComingSoon
-      icon={Activity}
-      eyebrow="Activity"
-      title="Exercise & steps"
-      description="Log workouts and track your daily steps."
-    />
-  );
+export default function ActivityRoute() {
+  return <ActivityPage />;
 }

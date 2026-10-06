@@ -7,8 +7,10 @@ import calorieCalculatorReducer from "./slices/calorieCalculatorSlice";
 import bmiReducer from "./slices/bmiSlice";
 import mealPlannerReducer from "./slices/mealPlannerSlice";
 import recipeReducer from "./slices/recipeSlice";
+import trackingReducer from "./slices/trackingSlice";
 import { api } from "./api";
 import { persistenceListener } from "./persistence";
+import { sessionListener } from "./sessionListener";
 
 // A new store is created per request/render tree (see StoreProvider), never
 // as a module-level singleton, so state can't leak between users on the
@@ -26,11 +28,15 @@ export function makeStore() {
       bmi: bmiReducer,
       mealPlanner: mealPlannerReducer,
       recipe: recipeReducer,
+      tracking: trackingReducer,
       [api.reducerPath]: api.reducer,
     },
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware()
-        .prepend(persistenceListener.middleware)
+        .prepend(
+          persistenceListener.middleware,
+          sessionListener.middleware
+        )
         .concat(api.middleware),
   });
 }

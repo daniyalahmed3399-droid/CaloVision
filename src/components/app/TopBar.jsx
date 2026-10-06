@@ -92,9 +92,10 @@ export default function TopBar({ onMenuClick }) {
             {today}
           </p>
 
-          <h1 className="mt-0.5 text-lg font-extrabold text-gray-900">
+          {/* Not a heading: each page supplies its own single <h1>. */}
+          <p className="mt-0.5 text-lg font-extrabold text-gray-900">
             {title}
-          </h1>
+          </p>
         </div>
 
         {/* Right Actions */}
