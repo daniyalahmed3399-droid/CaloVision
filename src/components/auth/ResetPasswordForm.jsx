@@ -92,6 +92,7 @@ export default function ResetPasswordForm() {
         </p>
 
         <Button
+          variant="green"
           className="mt-8 w-full"
           onClick={() => router.push("/login")}
         >
@@ -153,7 +154,7 @@ export default function ResetPasswordForm() {
           error={errors.confirm}
         />
 
-        <Button type="submit" loading={submitting} className="w-full">
+        <Button type="submit" variant="green" loading={submitting} className="w-full">
           {submitting ? "Saving…" : "Set new password"}
         </Button>
       </form>

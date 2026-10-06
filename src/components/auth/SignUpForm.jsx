@@ -154,7 +154,7 @@ export default function SignUpForm() {
           )}
         </div>
 
-        <Button type="submit" loading={submitting} className="w-full">
+        <Button type="submit" variant="green" loading={submitting} className="w-full">
           {submitting ? "Creating account…" : "Create account"}
         </Button>
 

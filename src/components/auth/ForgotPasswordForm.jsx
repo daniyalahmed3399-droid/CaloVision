@@ -103,7 +103,7 @@ export default function ForgotPasswordForm() {
           error={error}
         />
 
-        <Button type="submit" loading={submitting} className="w-full">
+        <Button type="submit" variant="green" loading={submitting} className="w-full">
           {submitting ? "Sending…" : "Send reset code"}
         </Button>
       </form>

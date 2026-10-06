@@ -94,7 +94,7 @@ export default function LoginForm() {
           </Link>
         </div>
 
-        <Button type="submit" loading={submitting} className="w-full">
+        <Button type="submit" variant="green" loading={submitting} className="w-full">
           {submitting ? "Logging in…" : "Log in"}
         </Button>
 
