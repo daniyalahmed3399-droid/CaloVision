@@ -1,3 +1,4 @@
+import { addDays } from "../../dates";
 import { api } from "../api";
 
 // Backend data for the Today dashboard, meal history, exercise, steps and
@@ -17,6 +18,22 @@ export const trackingApi = api.injectEndpoints({
     getDay: build.query({
       query: ({ date }) => ({ name: "day", params: { date } }),
       providesTags: (_result, _error, { date }) => dayTag(date),
+    }),
+
+    // Daily series (food calories, steps, calories burned, weight) for the
+    // dashboard graphs: the `days` days ending on `date`. It is tagged with
+    // every day in that window, so logging anything on one of those days
+    // refreshes the graphs along with the day's summary.
+    getMonthlyStats: build.query({
+      query: ({ date, days = 30 }) => ({
+        name: "monthlyStats",
+        params: { date, days },
+      }),
+      providesTags: (_result, _error, { date, days = 30 }) =>
+        Array.from({ length: days }, (_, i) => ({
+          type: "Day",
+          id: addDays(date, i - (days - 1)),
+        })),
     }),
 
     searchFoods: build.query({
@@ -90,6 +107,7 @@ export const trackingApi = api.injectEndpoints({
 
 export const {
   useGetDayQuery,
+  useGetMonthlyStatsQuery,
   useSearchFoodsQuery,
   usePreviewFoodQuery,
   useGetExerciseCategoriesQuery,

@@ -7,7 +7,7 @@
 
 import { ApiError } from "./errors";
 import { getMockUser } from "./mock";
-import { isDateString } from "../dates";
+import { addDays, isDateString } from "../dates";
 import {
   MEAL_ORDER,
   validateExerciseEntry,
@@ -136,6 +136,35 @@ function latestWeightKg(data, user, onOrBefore) {
     .sort((a, b) => (a.date < b.date ? 1 : -1))[0];
 
   return entry ? entry.kg : user.profile?.weightKg ?? 70;
+}
+
+// Deterministic made-up month for the graphs (same user + window -> same
+// numbers), used only when there is nothing real to show.
+function sampleSeries(dates, user) {
+  let seed = 0;
+  for (const ch of `${user.id}${dates[0]}`) seed = (seed * 31 + ch.charCodeAt(0)) | 0;
+
+  const random = () => {
+    seed = (seed + 0x6d2b79f5) | 0;
+    let t = Math.imul(seed ^ (seed >>> 15), 1 | seed);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+
+  const target = user.targets?.calories ?? 2000;
+  const startKg = user.profile?.weightKg ?? 78;
+
+  return dates.map((date, i) => ({
+    date,
+    calories: random() < 0.08 ? null : Math.round(target * (0.78 + random() * 0.3)),
+    steps: random() < 0.08 ? null : Math.round(3500 + random() * 9000),
+    exerciseCalories: random() < 0.45 ? 0 : Math.round(120 + random() * 340),
+    // A weigh-in every few days, drifting down a little.
+    weightKg:
+      i % 3 === 0
+        ? Math.round((startKg - i * 0.06 + (random() - 0.5) * 0.5) * 100) / 100
+        : null,
+  }));
 }
 
 // ---- handlers (same shape as lib/api/client.request) ----
@@ -412,6 +441,79 @@ export const mockTracking = {
     save(user.id, data);
 
     return entry;
+  },
+
+  // Daily series for the dashboard graphs: the `days` days ending on `date`
+  // (food calories, steps, calories burned, weight), plus the averages the
+  // cards show and the targets to draw. Real logs are used; a user with
+  // nothing logged in the window gets clearly flagged SAMPLE data so the
+  // graphs can be seen before any history exists.
+  async monthlyStats({ token, params }) {
+    await delay(300);
+    const user = getMockUser(token);
+    requireDate(params?.date);
+    const days = Math.min(Math.max(Number(params?.days) || 30, 7), 90);
+    const dates = Array.from({ length: days }, (_, i) =>
+      addDays(params.date, i - (days - 1))
+    );
+    const data = load(user.id);
+
+    let series = dates.map((date) => {
+      const food = data.food.filter((log) => log.date === date);
+      const burned = data.exercise
+        .filter((log) => log.date === date)
+        .reduce((sum, log) => sum + log.caloriesBurned, 0);
+      const weight = data.weights.find((entry) => entry.date === date);
+
+      return {
+        date,
+        calories: food.length ? sumNutrition(food).calories : null,
+        steps: date in data.steps ? data.steps[date] : null,
+        exerciseCalories: burned,
+        weightKg: weight ? weight.kg : null,
+      };
+    });
+
+    const hasData = series.some(
+      (day) =>
+        day.calories !== null ||
+        day.steps !== null ||
+        day.exerciseCalories > 0 ||
+        day.weightKg !== null
+    );
+
+    if (!hasData) series = sampleSeries(dates, user);
+
+    const logged = (key) => series.filter((day) => day[key] !== null);
+    const average = (list, key) =>
+      list.length
+        ? Math.round(list.reduce((sum, day) => sum + day[key], 0) / list.length)
+        : null;
+    const activeDays = series.filter((day) => day.exerciseCalories > 0);
+    const weights = logged("weightKg");
+
+    return {
+      from: dates[0],
+      to: dates[dates.length - 1],
+      days: series,
+      sample: !hasData,
+      targets: { calories: user.targets?.calories ?? null, steps: STEP_GOAL },
+      summary: {
+        avgCalories: average(logged("calories"), "calories"),
+        daysLogged: logged("calories").length,
+        avgSteps: average(logged("steps"), "steps"),
+        totalExerciseCalories: activeDays.reduce(
+          (sum, day) => sum + day.exerciseCalories,
+          0
+        ),
+        activeDays: activeDays.length,
+        firstWeightKg: weights[0]?.weightKg ?? null,
+        latestWeightKg: weights[weights.length - 1]?.weightKg ?? null,
+        weightChangeKg: weights.length > 1
+          ? Math.round((weights[weights.length - 1].weightKg - weights[0].weightKg) * 100) / 100
+          : null,
+      },
+    };
   },
 
   async weightHistory({ token, params }) {

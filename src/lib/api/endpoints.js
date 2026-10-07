@@ -31,4 +31,5 @@ export const endpoints = {
   stepsSet: null,
   weightLog: null,
   weightHistory: null, // GET: ({ limit })
+  monthlyStats: null, // GET: daily series for the dashboard graphs ({ date, days })
 };
