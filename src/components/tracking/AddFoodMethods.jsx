@@ -14,21 +14,27 @@ const METHODS = [
     icon: Camera,
     title: "Scan a meal photo",
     description: "Upload or take a photo and get an AI estimate.",
+    href: "/app/food/add/photo",
+    preview: true,
   },
   {
     icon: MessageSquareText,
     title: "Describe your meal",
     description: "Type something like “2 eggs, toast and coffee”.",
+    href: "/app/food/add/text",
+    preview: true,
   },
   {
     icon: Mic,
     title: "Speak your meal",
     description: "Say what you ate instead of typing it.",
+    href: "/app/food/add/voice",
+    preview: true,
   },
 ];
 
-// Step 1 of adding food: pick how to log it. Only search is built so far;
-// the AI methods arrive in a later task and are shown as coming soon.
+// Step 1 of adding food: pick how to log it. Search is built; describe, photo
+// and voice are UI-only previews (no analysis service yet).
 export default function AddFoodMethods() {
   return (
     <div className="mx-auto max-w-[900px]">
@@ -39,7 +45,7 @@ export default function AddFoodMethods() {
       />
 
       <ul className="grid gap-4 sm:grid-cols-2">
-        {METHODS.map(({ icon: Icon, title, description, href }) => {
+        {METHODS.map(({ icon: Icon, title, description, href, preview }) => {
           const body = (
             <>
               <div
@@ -56,6 +62,12 @@ export default function AddFoodMethods() {
                 {!href && (
                   <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[11px] font-bold text-gray-500">
                     Coming soon
+                  </span>
+                )}
+
+                {preview && (
+                  <span className="rounded-full bg-amber-50 px-2 py-0.5 text-[11px] font-bold text-amber-700">
+                    Preview
                   </span>
                 )}
               </div>

@@ -63,6 +63,22 @@ export function validateFoodEntry({ foodId, quantity, unit, mealType, date }) {
   return errors;
 }
 
+// ---- AI text meal logging ----
+
+export const MEAL_TEXT_MAX = 500;
+
+// Returns an error message, or "" when the description can be analyzed.
+export function validateMealDescription(text) {
+  const value = String(text ?? "").trim();
+
+  if (!value) return "Describe what you ate.";
+  if (value.length > MEAL_TEXT_MAX) {
+    return `Keep it under ${MEAL_TEXT_MAX} characters.`;
+  }
+
+  return "";
+}
+
 // ---- exercise ----
 
 export function validateExerciseEntry({ exerciseId, minutes, date }) {
@@ -140,6 +156,15 @@ export function formatWeight(kg, unit) {
   return unit === "lb"
     ? `${Math.round(kg * LB_PER_KG * 10) / 10} lb`
     : `${Math.round(kg * 10) / 10} kg`;
+}
+
+// Display only: stored weight is kg, shown in the unit the user chose.
+export function kgToUnit(kg, unit) {
+  if (!Number.isFinite(kg)) return null;
+
+  return unit === "lb"
+    ? Math.round(kg * LB_PER_KG * 10) / 10
+    : Math.round(kg * 10) / 10;
 }
 
 export const hasErrors = (errors) => Object.keys(errors).length > 0;
