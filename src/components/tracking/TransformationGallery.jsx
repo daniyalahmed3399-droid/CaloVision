@@ -48,7 +48,7 @@ export default function TransformationGallery() {
   return (
     <section
       aria-labelledby="transformations-title"
-      className="rounded-[24px] border border-gray-100 bg-white p-6 shadow-sm sm:p-7 xl:p-5"
+      className="rounded-[24px] border border-gray-100 bg-white p-4 shadow-sm sm:p-7 xl:p-5"
     >
       <div className="flex items-start justify-between gap-4">
         <div>
@@ -58,7 +58,7 @@ export default function TransformationGallery() {
 
           <h2
             id="transformations-title"
-            className="mt-1 text-2xl font-bold text-gray-900 xl:text-xl"
+            className="mt-1 text-[clamp(1.25rem,5.5vw,1.5rem)] font-bold leading-snug text-gray-900 xl:text-xl"
           >
             Your Body Changing With Weight Loss Program
           </h2>
@@ -111,7 +111,7 @@ export default function TransformationGallery() {
               alt={slide.alt}
               width={1125}
               height={825}
-              sizes="(min-width: 1280px) 260px, (min-width: 1024px) 28vw, (min-width: 640px) 46vw, 78vw"
+              sizes="(min-width: 1280px) 24rem, (min-width: 1024px) 28vw, (min-width: 640px) 46vw, 78vw"
               className="h-auto w-full"
             />
           </div>

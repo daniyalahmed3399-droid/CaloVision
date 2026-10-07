@@ -8,7 +8,7 @@ export default function MacroCard({ label, eaten, target, tone }) {
   const over = hasTarget && eaten > target;
 
   return (
-    <div className="rounded-[20px] border border-gray-100 bg-white p-5 shadow-sm">
+    <div className="rounded-[20px] border border-gray-100 bg-white p-4 shadow-sm sm:p-5">
       <div className="flex items-baseline justify-between gap-2">
         <h3 className="text-sm font-bold text-gray-900">{label}</h3>
 
@@ -19,7 +19,7 @@ export default function MacroCard({ label, eaten, target, tone }) {
         )}
       </div>
 
-      <p className="mt-3 text-2xl font-extrabold text-gray-900">
+      <p className="mt-3 text-[clamp(1.25rem,6vw,1.5rem)] font-extrabold text-gray-900">
         {formatNumber(eaten, 1)}
         <span className="ml-1 text-sm font-medium text-gray-400">
           {hasTarget ? `/ ${formatNumber(target)} g` : "g"}

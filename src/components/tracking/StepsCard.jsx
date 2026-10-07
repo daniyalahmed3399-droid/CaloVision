@@ -12,7 +12,7 @@ export default function StepsCard({ steps, onEdit }) {
   return (
     <section
       aria-labelledby="steps-title"
-      className="rounded-[20px] border border-gray-100 bg-white p-5 shadow-sm"
+      className="rounded-[20px] border border-gray-100 bg-white p-4 shadow-sm sm:p-5"
     >
       <div className="flex items-center gap-3">
         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-sky-50 text-sky-600">
@@ -26,7 +26,7 @@ export default function StepsCard({ steps, onEdit }) {
 
       {logged ? (
         <>
-          <p className="mt-4 text-3xl font-extrabold text-gray-900">
+          <p className="mt-4 text-[clamp(1.5rem,7vw,1.875rem)] font-extrabold text-gray-900">
             {formatNumber(steps.count)}
             {Number.isFinite(steps.goal) && (
               <span className="ml-1.5 text-sm font-medium text-gray-400">

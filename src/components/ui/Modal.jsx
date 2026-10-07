@@ -93,7 +93,7 @@ export default function Modal({
         aria-modal="true"
         aria-labelledby={titleId}
         tabIndex={-1}
-        className={`max-h-[92vh] w-full overflow-y-auto rounded-t-[24px] bg-white p-6 shadow-xl outline-none sm:max-w-md sm:rounded-[24px] ${className}`}
+        className={`max-h-[92vh] w-full overflow-y-auto rounded-t-[24px] bg-white p-5 shadow-xl sm:p-6 outline-none sm:max-w-md sm:rounded-[24px] ${className}`}
       >
         <div className="mb-5 flex items-start justify-between gap-4">
           <div>

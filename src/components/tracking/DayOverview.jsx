@@ -7,12 +7,12 @@ export default function DayOverview({ day }) {
   const { targets, totals } = day;
 
   return (
-    <div className="space-y-4">
+    <div className="@container space-y-4">
       <CalorieSummary day={day} />
 
       <h2 className="sr-only">Macronutrients</h2>
 
-      <div className="grid gap-4 sm:grid-cols-3">
+      <div className="grid gap-4 @md:grid-cols-3">
         <MacroCard label="Protein" eaten={totals.protein} target={targets?.proteinG} tone="blue" />
         <MacroCard label="Carbs" eaten={totals.carbs} target={targets?.carbsG} tone="orange" />
         <MacroCard label="Fat" eaten={totals.fat} target={targets?.fatG} tone="purple" />

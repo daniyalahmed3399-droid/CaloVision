@@ -60,7 +60,7 @@ export default function FoodHistory() {
     day && MEAL_ORDER.some((meal) => day.meals[meal].items.length > 0);
 
   return (
-    <div className="mx-auto max-w-[1280px]">
+    <div className="mx-auto w-full max-w-[2800px]">
       <PageHeader
         eyebrow="Food"
         title="Meals & food history"
@@ -82,11 +82,15 @@ export default function FoodHistory() {
           className={`space-y-6 transition-opacity ${isFetching ? "opacity-60" : ""}`}
         >
           {hasFood ? (
-            <>
+            // The day's totals on the left, the meals on the right once the
+            // page is wide (@4xl); on very wide pages the meals use two
+            // columns. Narrower pages stack them.
+            <div className="@container">
+              <div className="grid gap-6 @4xl:grid-cols-[minmax(0,0.8fr)_minmax(0,1.2fr)] @4xl:items-start">
               <DayOverview day={day} />
 
-              <div className="space-y-4">
-                <h2 className="sr-only">Meals</h2>
+              <div className="grid content-start gap-4 @7xl:grid-cols-2 @7xl:items-start">
+                <h2 className="sr-only @7xl:col-span-2">Meals</h2>
 
                 {MEAL_ORDER.map((meal) => (
                   <MealLogSection
@@ -99,7 +103,8 @@ export default function FoodHistory() {
                   />
                 ))}
               </div>
-            </>
+              </div>
+            </div>
           ) : (
             <EmptyState
               icon={Utensils}

@@ -13,7 +13,7 @@ export default function ErrorState({
   return (
     <div
       role="alert"
-      className={`flex flex-col items-center rounded-[24px] border border-red-100 bg-white px-6 py-12 text-center ${className}`}
+      className={`flex flex-col items-center rounded-[24px] border border-red-100 bg-white px-4 py-10 text-center sm:px-6 sm:py-12 ${className}`}
     >
       <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-red-50 text-red-500">
         <AlertTriangle size={26} />

@@ -48,7 +48,7 @@ export default function FoodSearch() {
   const waiting = query.trim() !== debounced;
 
   return (
-    <div className="mx-auto max-w-[900px]">
+    <div className="mx-auto w-full max-w-[1400px]">
       <Link
         href="/app/food/add"
         className="mb-2 inline-flex items-center gap-2 py-2.5 text-sm font-semibold text-gray-500 hover:text-gray-900"
@@ -63,7 +63,7 @@ export default function FoodSearch() {
         description="Search by name or type, then choose how much you had."
       />
 
-      <div className="grid gap-4 sm:grid-cols-[1fr_200px]">
+      <div className="grid gap-4 sm:max-w-[760px] sm:grid-cols-[1fr_200px]">
         <TextField
           label="Food"
           type="search"
@@ -107,7 +107,7 @@ export default function FoodSearch() {
         ) : (
           <ul
             aria-label="Search results"
-            className={`space-y-3 transition-opacity ${isFetching ? "opacity-60" : ""}`}
+            className={`grid gap-3 [grid-template-columns:repeat(auto-fill,minmax(min(100%,24rem),1fr))] transition-opacity ${isFetching ? "opacity-60" : ""}`}
           >
             {foods.map((food) => (
               <li key={food.id}>

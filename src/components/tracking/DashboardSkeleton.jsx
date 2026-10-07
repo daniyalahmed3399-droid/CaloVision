@@ -13,7 +13,7 @@ export default function DashboardSkeleton() {
   return (
     <LoadingRegion
       label="Loading your dashboard"
-      className="mx-auto max-w-[1280px]"
+      className="@container w-full"
     >
       <SkeletonHeader />
 
@@ -25,7 +25,7 @@ export default function DashboardSkeleton() {
         ))}
       </div>
 
-      <div className="mt-6 grid gap-6 2xl:grid-cols-[1.15fr_0.85fr]">
+      <div className="mt-6 grid gap-6 @4xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
         <div className="space-y-4">
           {["Breakfast", "Lunch", "Dinner", "Snacks"].map((meal) => (
             <div

@@ -68,7 +68,7 @@ export function SkeletonStat() {
 // Generic page: header, a row of stats, then two cards.
 export function PageSkeleton() {
   return (
-    <LoadingRegion className="mx-auto max-w-[1280px]">
+    <LoadingRegion className="@container mx-auto w-full max-w-[2800px]">
       <SkeletonHeader />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
@@ -77,7 +77,7 @@ export function PageSkeleton() {
         ))}
       </div>
 
-      <div className="mt-6 grid gap-6 lg:grid-cols-[1.15fr_0.85fr]">
+      <div className="mt-6 grid gap-6 @4xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)]">
         <SkeletonCard lines={5} />
         <SkeletonCard lines={4} />
       </div>

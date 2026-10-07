@@ -15,7 +15,7 @@ export default function CalorieSummary({ day }) {
   return (
     <section
       aria-labelledby="calorie-summary-title"
-      className="rounded-[24px] border border-gray-100 bg-white p-6 shadow-sm sm:p-7"
+      className="rounded-[24px] border border-gray-100 bg-white p-4 shadow-sm min-[400px]:p-6 sm:p-7"
     >
       <div className="flex items-center gap-3">
         <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[#eaf5df] text-[#4dbb08]">
@@ -31,7 +31,7 @@ export default function CalorieSummary({ day }) {
       </div>
 
       <div className="mt-5 flex flex-wrap items-end gap-x-3 gap-y-1">
-        <span className="text-5xl font-extrabold tracking-tight text-gray-900">
+        <span className="text-[clamp(2.25rem,12vw,3rem)] font-extrabold leading-none tracking-tight text-gray-900">
           {formatNumber(eaten)}
         </span>
 
@@ -55,7 +55,7 @@ export default function CalorieSummary({ day }) {
         </p>
       )}
 
-      <dl className="mt-6 grid grid-cols-3 gap-3">
+      <dl className="mt-6 grid grid-cols-3 gap-2 sm:gap-3">
         <Stat label="Target" value={Number.isFinite(target) ? formatNumber(target) : "—"} />
         <Stat label="Burned" value={formatNumber(burned)} hint="exercise" />
         <Stat
@@ -75,15 +75,15 @@ export default function CalorieSummary({ day }) {
 function Stat({ label, value, hint, warn = false }) {
   return (
     <div
-      className={`rounded-2xl p-4 ${warn ? "bg-amber-50" : "bg-[#f6f9f1]"}`}
+      className={`min-w-0 rounded-2xl p-3 sm:p-4 ${warn ? "bg-amber-50" : "bg-[#f6f9f1]"}`}
     >
       <dt className="text-xs font-medium text-gray-500">{label}</dt>
 
       <dd
-        className={`mt-1 text-xl font-bold ${warn ? "text-amber-700" : "text-gray-900"}`}
+        className={`mt-1 text-[clamp(1rem,5vw,1.25rem)] font-bold ${warn ? "text-amber-700" : "text-gray-900"}`}
       >
         {value}
-        <span className="ml-1 text-xs font-medium text-gray-400">
+        <span className="block text-xs font-medium text-gray-400 min-[400px]:ml-1 min-[400px]:inline">
           {hint || "kcal"}
         </span>
       </dd>

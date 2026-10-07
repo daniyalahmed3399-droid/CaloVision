@@ -64,7 +64,7 @@ export default function ActivityPage() {
   };
 
   return (
-    <div className="mx-auto max-w-[1280px]">
+    <div className="@container mx-auto w-full max-w-[2800px]">
       <PageHeader
         eyebrow="Activity"
         title="Exercise, steps & weight"
@@ -83,7 +83,7 @@ export default function ActivityPage() {
       ) : (
         <div
           aria-busy={isFetching}
-          className={`grid gap-6 lg:grid-cols-[1.15fr_0.85fr] transition-opacity ${isFetching ? "opacity-60" : ""}`}
+          className={`grid gap-6 @4xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.85fr)] @4xl:items-start transition-opacity ${isFetching ? "opacity-60" : ""}`}
         >
           <h2 className="sr-only">Exercise, steps and weight</h2>
           <div className="space-y-4">
@@ -96,7 +96,7 @@ export default function ActivityPage() {
             <ExercisePicker onPick={setExercise} />
           </div>
 
-          <div className="space-y-4">
+          <div className="grid content-start gap-4 @xl:grid-cols-2 @4xl:grid-cols-1 @7xl:grid-cols-2">
             <StepsCard steps={day.steps} onEdit={() => setStepsOpen(true)} />
 
             <WeightCard
@@ -105,7 +105,9 @@ export default function ActivityPage() {
               onLog={() => setWeightOpen(true)}
             />
 
-            <WeightHistory unit={unit} />
+            <div className="@xl:col-span-2 @4xl:col-span-1 @7xl:col-span-2">
+              <WeightHistory unit={unit} />
+            </div>
           </div>
         </div>
       )}

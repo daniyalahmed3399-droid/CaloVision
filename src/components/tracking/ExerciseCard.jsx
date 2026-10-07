@@ -12,7 +12,7 @@ export default function ExerciseCard({ exercise, onDelete, showLogLink = true })
   return (
     <section
       aria-labelledby="exercise-title"
-      className="rounded-[20px] border border-gray-100 bg-white p-5 shadow-sm"
+      className="rounded-[20px] border border-gray-100 bg-white p-4 shadow-sm sm:p-5"
     >
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">

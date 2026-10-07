@@ -10,7 +10,7 @@ export default function WeightCard({ weight, unit, onLog }) {
   return (
     <section
       aria-labelledby="weight-title"
-      className="rounded-[20px] border border-gray-100 bg-white p-5 shadow-sm"
+      className="rounded-[20px] border border-gray-100 bg-white p-4 shadow-sm sm:p-5"
     >
       <div className="flex items-center gap-3">
         <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-50 text-violet-600">
@@ -24,7 +24,7 @@ export default function WeightCard({ weight, unit, onLog }) {
 
       {weight ? (
         <>
-          <p className="mt-4 text-3xl font-extrabold text-gray-900">
+          <p className="mt-4 text-[clamp(1.5rem,7vw,1.875rem)] font-extrabold text-gray-900">
             {formatWeight(weight.kg, unit)}
           </p>
           <p className="mt-1 text-xs text-gray-500">

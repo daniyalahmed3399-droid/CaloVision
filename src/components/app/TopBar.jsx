@@ -45,6 +45,12 @@ export default function TopBar({ onMenuClick }) {
 
   const displayName = user?.name || user?.email?.split("@")[0] || "User";
 
+  // On the dashboard the bar greets the user ("Hi, Name" over "Today");
+  // elsewhere it shows the date.
+  const firstName = user?.name?.split(" ")[0];
+  const greeting = firstName ? `Hi, ${firstName}` : "Welcome back";
+  const onDashboard = pathname.startsWith("/app/dashboard");
+
   // Close the profile menu on outside click or Escape.
   useEffect(() => {
     if (!menuOpen) return;
@@ -89,7 +95,7 @@ export default function TopBar({ onMenuClick }) {
         {/* Page Context */}
         <div className="ml-3 lg:ml-0">
           <p className="text-xs font-semibold uppercase tracking-[0.14em] text-gray-400">
-            {today}
+            {onDashboard ? greeting : today}
           </p>
 
           {/* Not a heading: each page supplies its own single <h1>. */}
